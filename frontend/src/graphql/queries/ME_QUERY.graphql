@@ -1,0 +1,10 @@
+query Query {
+  ME {
+    username
+    email
+    password
+    account_status
+    role
+    two_factor_enabled
+  }
+}

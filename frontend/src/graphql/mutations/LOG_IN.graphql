@@ -1,0 +1,13 @@
+mutation Login($input: LoginUserType) {
+  login(input: $input) {
+    token
+    user {
+      username
+      email
+      two_factor_enabled
+      account_status
+      role
+    }
+    message
+  }
+}
