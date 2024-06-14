@@ -40,6 +40,10 @@ const loginResolver = async (parent, args, context) => {
     const passwordError = validatePassword(password);
     if (passwordError) errors.push({ message: passwordError, code: "INVALID_PASSWORD" });
 
+    if(user.is_verified == false) {
+      errors.push({ message: "Please Verify your email", code: "NEED_EMAIL_VERIFICATION" });
+    }
+
     if (errors.length > 0) {
      return { errors };
     }

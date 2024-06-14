@@ -1,13 +1,12 @@
+import './init-aliases';
 import express, { Application } from 'express'
-import { ApolloServer } from 'apollo-server-express';
-import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
+import { ApolloServer } from 'apollo-server-express';;
 import cors from 'cors';
 import { schema } from './schema';
 import { config } from 'dotenv';
 import initiateMongoServer from './db/dbConnection';
 import { jwtVerify } from './gateway/users/authMiddleWare/authMiddleware';
 config()
-
 const app: Application = express()
 
 initiateMongoServer()
@@ -25,6 +24,8 @@ const server:any = new ApolloServer({
     schema,
     context: async ({ req }) => {
         if(!req.headers.authorization) {
+
+
             return { message: 'User must be logged In'}
         }
         const token = req.headers.authorization;

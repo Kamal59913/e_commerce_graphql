@@ -18,6 +18,9 @@ import { CategoryInputType } from "./types/CATEGORY_INPUT_TYPE"
 import { ME_QUERY_RETURN_TYPE } from "./types/ME_QUERY_USER_RETURN_TYPE"
 import { UserType } from "./types/UsersType"
 import UsersList from "./types/UsersList"
+import { EmailInputType } from "./types/EmailInputType"
+import CreateEmailSendResolver from "./resolver/toEmailVerify/CreateEmailSendResolver"
+import isVerified from "./resolver/isVerified"
 
 export const userQuery = {
     ME: {
@@ -37,6 +40,13 @@ export const usersMutation = {
         resolve: addUserResolver
     },
 
+    isVerified: {
+        type: ReponseType,
+        // args: {
+        //   input: { type: SetPasswordInput },
+        // },
+        resolve: isVerified,
+      },
     updateUserSettingsForm: {
         type: ReponseType,
         args: {
@@ -85,5 +95,20 @@ export const usersMutation = {
             }
         },
         resolve: CreateCategoryResolver
-    }
+    },
+
+    getUserEmailForVerification: {
+        type: ReponseType,
+        args: {
+            input: {
+                type: EmailInputType
+            }
+        },
+        resolve: CreateEmailSendResolver
+    },
+
+    // checkUserIsVerified: {
+    //     type: ReponseType,
+    //     resolve: CheckIsUserVerifiedResolver
+    // }
 }

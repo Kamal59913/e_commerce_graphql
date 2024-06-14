@@ -110,14 +110,14 @@ export default function LogIn() {
                     {" "}
                     Password{" "}
                   </label>
-                  <a
-                    href="#"
+                  <Link
+                    href="/password-reset"
                     title=""
                     className="text-sm font-semibold text-black hover:underline"
                   >
                     {" "}
                     Forgot password?{" "}
-                  </a>
+                  </Link>
                 </div>
                 <div className="mt-2">
                   <input

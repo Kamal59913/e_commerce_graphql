@@ -23,7 +23,8 @@ const MEQueryResolver = async (parents: unknown, args, context) => {
       password: user.password,
       two_factor_enabled: user.two_factor_enabled,
       account_status: user.account_status,
-      role: user.role
+      role: user.role,
+      is_verified: user.is_verified
     };
 
   } catch (e) {

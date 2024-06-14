@@ -10,5 +10,6 @@ export const ME_QUERY_RETURN_TYPE = new GraphQLObjectType({
       two_factor_enabled: {type: GraphQLBoolean},
       account_status: {type: GraphQLString},
       role: {type: GraphQLString},
+      is_verified: {type: GraphQLBoolean},
     }
   })

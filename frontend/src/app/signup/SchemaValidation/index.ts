@@ -1,11 +1,10 @@
 import * as yup from "yup";
 
 export const schema = yup.object({
-  username: yup.string()
-    .required("Username is required")
-    .matches(/^\S*$/, "Username cannot contain spaces")
-    .min(3, "Username must be at least 3 characters")
-    .max(15, "Username must not exceed 15 characters")
+  fullname: yup.string()
+    .required("first name is required")
+    .min(3, "first name must be at least 3 characters")
+    .max(15, "first name must not exceed 15 characters")
     ,
 
   email: yup.string()

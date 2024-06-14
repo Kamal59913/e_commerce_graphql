@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { passwordStrength } from "check-password-strength";
 import { useMutation } from '@apollo/client'
 import { SubmitHandler, useForm } from "react-hook-form";
-import SIGN_UP from '../../graphql/ mutations/SIGN_UP_USER.graphql'
+import SIGN_UP from "../../graphql/mutations/SIGN_UP_USER.graphql"
 import { schema } from "./SchemaValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormValues } from "./types";
@@ -34,7 +34,7 @@ export default function Signup() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      username:"", 
+      fullname:"",
       email: "",  
       password: "", 
     },
@@ -58,7 +58,7 @@ export default function Signup() {
           variables: { 
             input: 
               { 
-                username: values.username,
+                fullname: values.fullname,
                 email: values.email,
                 password: values.password,
               } 
@@ -71,28 +71,14 @@ export default function Signup() {
         if(errors) {
           if(errors.length>0) {
             errors.map((num: any, index: any) => {
-                if(num.code == "USERNAME_EXISTS") {
-                  toast.warning(num.message, {
+                if(num.code == "INVALID_EMAIL") {
+                  toast.error(num.message, {
                     position: "top-center"
                   });
-                } else if (num.code == "EMAIL_EXISTS") {
-                  toast.warning(num.message, {
-                    position: "top-center"
-                  });
-                } else if (num.code == "EMAIL_AND_USERNAME_EXISTS") {
-                  toast.warning(num.message, {
-                    position: "top-center"
-                  });
-                }
+                } 
             })
-              // if(errors[0].code = "USERNAME_EXISTS") {
-              //   toast.warning("User with this Email Already Exists !", {
-              //     position: "top-center"
-              //   });            }
           }
-        } else {
-          router.push('/login') 
-        }
+        } 
       } catch (e) {
         console.error(e);
       }
@@ -129,27 +115,26 @@ export default function Signup() {
               <div className="items-center justify-between">
                 <label htmlFor="name" className="text-base font-medium text-gray-900">
                   {" "}
-                  User Name{" "}
+                  Fullname{" "}
                 </label>  
                 </div>
                 <div className="mt-2">
                   <input
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                     type="text"
-                    placeholder="User Name"
+                    placeholder="First Name"
                     id="name"
-                    {...register('username')} // Register the 'username' field here
+                    {...register('fullname')} // Register the 'first_name' field here
                   />
-                    {errors.username && (
+                    {errors.fullname && (
                     <p className='text-[#FF5733] text-xs  pt-2'>
-                    {errors.username.message}
+                    {errors.fullname.message}
                     </p>
                   )}
                 </div>
               </div>
               <div>
               <div className="flex items-center justify-between">
-
                 <label htmlFor="email" className="text-base font-medium text-gray-900">
                   {" "}
                   Email address{" "}

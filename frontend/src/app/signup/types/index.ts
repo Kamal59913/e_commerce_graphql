@@ -1,7 +1,7 @@
 export interface props {}
 
 export interface FormValues {
-  username: string;
+  fullname: string;
   email: string;
   password: string;
 }

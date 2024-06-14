@@ -10,6 +10,10 @@ export const AddUsersTypeInput = new GraphQLInputObjectType({
     last_name: { type: GraphQLString },
 
     username: {
+      type: GraphQLString,
+    },
+    
+    fullname: {
       type: new GraphQLNonNull(GraphQLString),
     },
 
@@ -27,6 +31,10 @@ export const AddUsersTypeInput = new GraphQLInputObjectType({
     location: { type: LocationType },
 
     two_factor_enabled: {
+      type: GraphQLBoolean
+    },
+    
+    is_verified: {
       type: GraphQLBoolean
     },
 

@@ -1,8 +1,8 @@
-mutation AddUser($input: AddUsersTypeInput) {
-  addUser(input: $input) {
+mutation IsVerified {
+  isVerified {
     success
     user {
-      fullname
+      username
       email
       password
     }

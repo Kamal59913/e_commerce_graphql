@@ -5,6 +5,7 @@ export type user = {
   /*12*/
   first_name: string,
   last_name: string,
+  fullname: string,
   username: string,
   image: string,
   email: string,
@@ -17,6 +18,7 @@ export type user = {
     postal_code: string,
     coordinates: string
   },
+  is_verified: boolean,
   two_factor_enabled: boolean,
   account_status: 'active' | 'inactive' | 'banned' ,
   role: 'User' | 'Admin' ,
@@ -37,6 +39,10 @@ const userSchema = new Schema<user>({
   },
   username: {
     type: String,
+    required: false,
+  },
+  fullname: {
+    type: String,
     required: true,
   },
   image: {
@@ -56,6 +62,12 @@ const userSchema = new Schema<user>({
   password: {
       type: String,
       required: true
+  },
+
+  is_verified: {
+    type: Boolean,
+    required: false,
+    default: false
   },
   
   location: {

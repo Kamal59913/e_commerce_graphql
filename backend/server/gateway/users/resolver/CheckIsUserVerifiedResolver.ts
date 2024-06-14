@@ -4,7 +4,7 @@ import EmailSender from "@/utils/services/emailSender";
 import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplate";
 
 
-const addUserResolver = async (parents: unknown, args, context) => {
+const CheckIsUserVerifiedResolver = async (parents: unknown, args, context) => {
   console.log("reached here")
   try {
     const { email, fullname } = args.input;
@@ -54,4 +54,4 @@ const addUserResolver = async (parents: unknown, args, context) => {
   }
 };
 
-export default addUserResolver;
+export default CheckIsUserVerifiedResolver;
