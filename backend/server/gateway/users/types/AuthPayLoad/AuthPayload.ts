@@ -1,6 +1,6 @@
-import { GraphQLObjectType, GraphQLNonNull, GraphQLString } from 'graphql';
+import { GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList } from 'graphql';
 import { LoggedInUserResponseType } from '../LoggedInUserResponseType';
-
+import Error from '@/gateway/types/ErrorType';
 const AuthPayload = new GraphQLObjectType({
   name: 'AuthPayload',
   fields: () => ({
@@ -10,9 +10,8 @@ const AuthPayload = new GraphQLObjectType({
     user: {
       type: LoggedInUserResponseType
     },
-    message: {
-      type: 
-        GraphQLString
+    errors: {
+      type: new GraphQLList(Error),
     }
   }),
 });

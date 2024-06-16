@@ -3,8 +3,8 @@ import { GraphQLInt, GraphQLNonNull, GraphQLObjectType, GraphQLString } from "gr
 export const UserType = new GraphQLObjectType({
     name: 'User',
     fields: {
-      fullname: {type: new GraphQLNonNull(GraphQLString)},
+      otp: {type: new GraphQLNonNull(GraphQLString)},
       email: {type: new GraphQLNonNull(GraphQLString)},
-      password: {type: new GraphQLNonNull(GraphQLString)},
+      // password: {type: new GraphQLNonNull(GraphQLString)},
     }
   })

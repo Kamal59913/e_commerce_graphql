@@ -1,10 +1,11 @@
-query Query {
+query ME {
   ME {
-    username
+    fullname
     email
     password
+    two_factor_enabled
     account_status
     role
-    two_factor_enabled
+    is_verified
   }
 }

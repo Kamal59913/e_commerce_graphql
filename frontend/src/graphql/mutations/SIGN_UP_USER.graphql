@@ -1,10 +1,12 @@
-mutation AddUser($input: AddUsersTypeInput) {
+mutation Mutation($input: AddUsersTypeInput) {
   addUser(input: $input) {
-    success
+    token
     user {
       fullname
       email
-      password
+      two_factor_enabled
+      account_status
+      role
     }
     errors {
       message

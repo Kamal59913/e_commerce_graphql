@@ -9,11 +9,25 @@ import { useMutation } from "@apollo/client";
 import LOG_IN from '../.././graphql/mutations/LOG_IN.graphql'
 import { permanentRedirect, redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useMeQuery } from "@/graphql/generated/schema";
 
 
 export default function LogIn() {
   // const router = useRouter();
   const [isAuthenticated, serIsAuthenticated] = useState(false);
+  
+  const { data: userData } = useMeQuery({
+    fetchPolicy: "network-only",
+  });
+
+  const authuser = userData?.ME?.is_verified
+  console.log(authuser, "authuser")
+  useEffect(()=> {
+    if(authuser == true) {
+      redirect('/dashboard')
+    }
+  }, [authuser])
+
   const {
     handleSubmit,
     reset,
@@ -46,7 +60,7 @@ export default function LogIn() {
       const token = loginresponse.data.login.token
       console.log(token, "here is the login page token")
       if(token) {
-        setCookie('AccessToken', token, {
+        setCookie('token', token, {
           path: '/',
         });
         console.log("Here is the token", token)
@@ -57,12 +71,6 @@ export default function LogIn() {
       console.log(e);
     }
   }
-
-  useEffect(() => {
-      if(isAuthenticated) {
-        redirect('/dashboard')
-      }
-  }, [isAuthenticated])
 
   return (
     <section className='h-screen'>

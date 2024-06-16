@@ -2,11 +2,15 @@ import userModel from "../../../../db/models/users_model/users.model";
 import { validateEmail, validatePassword, validateUsername } from "../../validation/validation";
 import { generateToken } from "../../jwtGen/jwtGwn";
 import { isPassWordCorrect } from "../../jwtGen/passWordVerify";
+import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplateLogin";
+import EmailSender from "@/utils/services/emailSender";
 
 const loginResolver = async (parent, args, context) => {
   try {
     const { email, password} = args.input;
     const user = await userModel.findOne({email})
+
+        const errors = [];
 
     if (!user) {
       console.log("User not found with email: ", email);
@@ -24,34 +28,28 @@ const loginResolver = async (parent, args, context) => {
   }
 
     
-    const jwtAccessToken = await generateToken(user) 
-
-    console.log("JWT access token is here", jwtAccessToken)
-    console.log("Password is", ispasspordcorrect)
-
-    const loggedInUser = await userModel.findOne({email}).select("-password -refreshToken")
-
-    const errors = [];
-
-
-    const emailError = validateEmail(email);
-    if (emailError) errors.push({ message: emailError, code: "INVALID_EMAIL" });
-
-    const passwordError = validatePassword(password);
-    if (passwordError) errors.push({ message: passwordError, code: "INVALID_PASSWORD" });
+    const token = await generateToken(user)
 
     if(user.is_verified == false) {
-      errors.push({ message: "Please Verify your email", code: "NEED_EMAIL_VERIFICATION" });
-    }
+      console.log("false")
+      const FRONTEND_URL = process.env.FRONTEND_URL;
+      const url = `${FRONTEND_URL}/email-verification/${token}`;
 
-    if (errors.length > 0) {
-     return { errors };
-    }
+      const template = emailVerifyTemplate(url);
+      const subject = `Login verification`;
+
+      await EmailSender([user.email], template, subject)
+
+      return {  
+        errors: [{ message: 'User Not Verified', code: 'NOT_VERIFIED' }]
+    };    
+  }
+
 
     return {
-        token: jwtAccessToken,
-        user: loggedInUser,
-        message: "success",
+        token: token,
+        user: user,
+        errors: null,
     }
 
   } catch (e) {

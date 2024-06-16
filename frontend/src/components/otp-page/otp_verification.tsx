@@ -1,68 +1,83 @@
 "use client"
 import Link from "next/link";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { schema } from "./SchemaValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormValues } from "./types";
 import { useMutation } from "@apollo/client";
-import RESET_PASSWORD from '../.././graphql/mutations/RESET_PASSWORD.graphql'
+import VERIFY_OTP from '../../graphql/mutations/VERIFY_OTP.graphql'
 import { permanentRedirect, redirect, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
-
-const PasswordReset: React.FC = () => {
-
-  const [isUserExist, serisUserExist] = useState(false);
+import { MuiOtpInput } from "mui-one-time-password-input";
+import { useSelector } from "react-redux";
 
 
-  const router = useRouter();
+
+const OtpVerification: React.FC = () => {
+
+  const [iseVerified, setIsVerified] = useState(false)
+  useEffect(()=> {
+    if(iseVerified) {
+      redirect('/dashboard')
+    }
+  },[iseVerified])
+  const meData = useSelector((state: { meData: any}) => state.meData)
+  console.log(meData, "Here is the user's data")
+  const [otp, setOtp] = useState('');
+  const [email, setEmail] = useState();
   const {
+    control,
     handleSubmit,
-    reset,
-    register,
     formState: { errors },
   } = useForm({
       defaultValues: {
-      new_password: "",
-      confirm_password: ""
-    },
+        otp: "",
+  },
     mode: "onChange",
     reValidateMode: "onChange",
     resolver: yupResolver(schema)
   })
 
-  const [PasswordResetUser, { data, loading, error }] = useMutation(RESET_PASSWORD);
-  const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    try {
-      const PasswordResetresponse = await PasswordResetUser({
-        variables: {
-          input: 
-            {
-              new_password: values.new_password,
-              confirm_password: values.confirm_password
-            }
-        }
-      });
-      if(PasswordResetresponse.data.resetPassword.success == true) {
-          router.push('/login')
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  }
+  const [VerifyOtp, { data, loading, error }] = useMutation(VERIFY_OTP);
 
+  let emailtosend = 'kamallochan.boruah@qualhon.com'
+  const onSubmit: SubmitHandler<FormValues> = async (formData) => {
+    const OtpVerificationResponse = await VerifyOtp({
+        variables: {
+          input: {
+            email: meData?.ME?.email,
+            otp: formData.otp
+          }
+        }
+    })
+    if(OtpVerificationResponse.data.verifyOtp.success == true) {
+        setIsVerified(true)
+    }
+  };
+console.log(iseVerified, "has verified or not")
+  useEffect(() => {
+    if (otp) {
+      console.log('OTP:', otp);
+    }
+  }, [otp]);
+  
   return (
     <section className='h-screen'>
         <div className="grid grid-cols-1 lg:grid-cols-2"> 
       <div className="flex items-center justify-center px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md">
           <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl">
-            Reset Password
+            Please Enter The OTP
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Go back to <Link href="/login"> <span className="font-semibold text-black transition-all duration-200 hover:underline">Login Page !{" "}</span></Link>
             </p>
+
+          <p className="mt-2 text-sm text-gray-600">
+            An OTP has been sent to <strong>{meData && meData.ME.email}.  </strong>
+          </p>
 
           <form action="#" method="POST" className="mt-6" onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-5">
@@ -71,45 +86,30 @@ const PasswordReset: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <label htmlFor="" className="text-base font-medium text-gray-900">
                     {" "}
-                    Password{" "}
+                    OTP{" "}
                   </label>
                 </div>
-                <div className="mt-2">
-                  <input
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                    type="password"
-                    placeholder="Password"
-                    {...register("new_password")}
+                <div className="mt-2 flex gap-4 w-[300px]">
+                <Controller
+                    name="otp"
+                    control={control}
+                    rules={{ validate: (value) => value.length === 4 }}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <MuiOtpInput sx={{ gap: 1 }} {...field} length={4} />
+                        {/* {fieldState.invalid ? (
+                          <p>OTP invalid</p>
+                        ) : null} */}
+                      </>
+                    )}
                   />
-                  {errors.new_password && (
-                    <p className='text-[#FF5733] text-xs  pt-2'>
-                      {errors.new_password.message}
+                </div>
+                {errors.otp && ( <p className='text-[#FF5733] text-xs  pt-2'>
+                      {errors.otp.message}
                     </p>
                   )} 
-                </div>
               </div>
               <div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <label htmlFor="" className="text-base font-medium text-gray-900">
-                    {" "}
-                    Confirm Password{" "}
-                  </label>
-                </div>
-                <div className="mt-2">
-                  <input
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                    type="password"
-                    placeholder="Password"
-                    {...register("confirm_password")}
-                  />
-                  {errors.confirm_password&& (
-                    <p className='text-[#FF5733] text-xs  pt-2'>
-                      {errors.confirm_password.message}
-                    </p>
-                  )} 
-                </div>
-              </div>
               <p className="mt-2 text-sm text-gray-600">
                 Don&#x27;t have an account?{" "} 
                 <span className="font-semibold text-black transition-all duration-200 hover:underline">
@@ -123,7 +123,7 @@ const PasswordReset: React.FC = () => {
                   type="submit"
                   className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
                 >
-                  Confirm Reset{" "}
+                  Confirm OTP{" "}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -158,4 +158,4 @@ const PasswordReset: React.FC = () => {
   );
 }
 
-export default PasswordReset;
+export default OtpVerification;

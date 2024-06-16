@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { passwordStrength } from "check-password-strength";
 import { useMutation } from '@apollo/client'
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -9,13 +10,21 @@ import SIGN_UP from "../../graphql/mutations/SIGN_UP_USER.graphql"
 import { schema } from "./SchemaValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormValues } from "./types";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { ErrorObject } from "./types/Error_Object";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
 export default function Signup() {
+  const [isAuthenticated, serIsAuthenticated] = useState(false);
+
+
+  useEffect(() => {
+    if(isAuthenticated) {
+      redirect('/otp-verification')
+    }
+}, [isAuthenticated])
 
 
   const notify = () => {
@@ -66,8 +75,20 @@ export default function Signup() {
           });
         
         console.log(signupresponse, "this is the sign up response")
-        const errors=  signupresponse.data.addUser.errors;
-                
+        const errors= signupresponse.data.addUser.errors;
+        const token = signupresponse.data.addUser.token
+        if(token) {
+          setCookie('token', token, {
+            path: '/',
+          });
+          console.log("Here is the token", token)
+          
+          serIsAuthenticated(true)
+        }
+
+
+    
+
         if(errors) {
           if(errors.length>0) {
             errors.map((num: any, index: any) => {
@@ -77,7 +98,7 @@ export default function Signup() {
                   });
                 } 
             })
-          }
+          } 
         } 
       } catch (e) {
         console.error(e);

@@ -1,0 +1,9 @@
+mutation VerifyOtp($input: OtpInputType) {
+  verifyOtp(input: $input) {
+    success
+    errors {
+      message
+      code
+    }
+  }
+}

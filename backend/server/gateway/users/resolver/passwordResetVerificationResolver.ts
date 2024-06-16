@@ -1,7 +1,7 @@
 import userModel from "@/db/models/users_model/users.model";
 import jwtGen from "@/utils/jwtGen";
 import EmailSender from "@/utils/services/emailSender";
-import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplate";
+import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplateLogin";
 
 
 const CheckIsUserVerifiedResolver = async (parents: unknown, args, context) => {

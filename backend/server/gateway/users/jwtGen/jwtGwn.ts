@@ -12,7 +12,7 @@ export const generateToken =  async (user) => {
         role: user.role
     },
 
-    process.env.TOKEN_SECRET,
+    process.env.JWT_TOKEN_SECRET,
 
     {
         expiresIn: process.env.TOKEN_EXPIRY

@@ -4,7 +4,8 @@ export const jwtVerify = async (token: any) => {
   const SECRET_KEY:any = process.env.JWT_TOKEN_SECRET;
   try {
     if (token) {
-      const data: any = jwt.verify(token, SECRET_KEY);
+      const newToken = token.replace("Bearer ","")
+      const data: any = jwt.verify(newToken, SECRET_KEY);
       return data;
     }
   } catch (err) {

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useQueryQuery } from "@/graphql/generated/schema";
+import { useMeQuery } from "@/graphql/generated/schema";
 import { useDispatch } from "react-redux";
 import { setMeData } from "@/redux/slices/meData";
 
@@ -39,7 +39,7 @@ const Auth: React.FunctionComponent<IAuth> = ({
   children = null,
   isPublic = false,
 }: IAuth) => {
-  const { data, loading, error } = useQueryQuery({
+  const { data, loading, error } = useMeQuery({
     fetchPolicy: "network-only",
   });
   console.log('data',data)

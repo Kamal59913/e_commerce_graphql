@@ -1,0 +1,9 @@
+mutation GetUserEmailForVerification($input: EmailInputType) {
+  getUserEmailForVerification(input: $input) {
+    success
+    errors {
+      message
+      code
+    }
+  }
+}

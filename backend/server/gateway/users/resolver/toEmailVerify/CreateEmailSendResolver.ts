@@ -1,10 +1,12 @@
-import userModel from "../../../../db/models/users_model/users.model";
-import EmailSender from "../../../../utils/services/emailSender"
-import { emailVerifyTemplate } from "../../../../utils/template/emailVerifyTemplate";
+import userModel from "@/db/models/users_model/users.model";
+import EmailSender from "@/utils/services/emailSender";
+import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplatePasswordReset";
 import { jwtVerify } from "../../authMiddleWare/authMiddleware";
 import { generateToken } from "../../jwtGen/jwtGwn";
 
 const CreateEmailSendResolver = async (parent, args, context) => {
+
+  console.log("reached here")
   try {
    const {email} = args.input;
     console.log(email)
@@ -23,7 +25,9 @@ const CreateEmailSendResolver = async (parent, args, context) => {
    }
 
    const tokenToSent = await generateToken(emailExists)    
+   console.log(tokenToSent)
    const url = `${process.env.FRONTEND_URL}/password-reset/${tokenToSent}`
+   console.log(url)
    const template = emailVerifyTemplate(url);
    const subject = 'User Verify';
 
@@ -32,7 +36,6 @@ const CreateEmailSendResolver = async (parent, args, context) => {
    return {
     success: true,
     message: "User Added Successfully",
-    user: emailExists
    }
 
   } catch (e) {

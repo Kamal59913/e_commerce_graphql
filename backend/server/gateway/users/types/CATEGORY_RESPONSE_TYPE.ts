@@ -2,8 +2,8 @@ import { GraphQLObjectType, GraphQLList, GraphQLBoolean } from 'graphql';
 import Error from '../../../gateway/types/ErrorType';
 import { CategoryType } from './CATEGORY_TYPE';
 
-export const CategoryReponseType = new GraphQLObjectType({
-  name: 'CategoryReponseType',
+export const CategoryResponseType = new GraphQLObjectType({
+  name: 'CategoryResponseType',
   fields: () => ({
     success: {
       type: GraphQLBoolean

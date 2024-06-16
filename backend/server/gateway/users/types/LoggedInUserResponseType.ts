@@ -3,7 +3,7 @@ import { GraphQLBoolean, GraphQLNonNull, GraphQLObjectType, GraphQLString } from
 export const LoggedInUserResponseType = new GraphQLObjectType({
     name: 'LoggedInUserResponseType',
     fields: {
-      username: {type: new GraphQLNonNull(GraphQLString)},
+      fullname: {type: GraphQLString},
       email: {type: new GraphQLNonNull(GraphQLString)},
       two_factor_enabled: {type: new GraphQLNonNull(GraphQLBoolean)},
       account_status: {type: new GraphQLNonNull(GraphQLString)},

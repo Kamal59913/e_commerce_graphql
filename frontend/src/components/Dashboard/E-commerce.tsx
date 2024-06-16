@@ -13,7 +13,6 @@ import { useSelector } from "react-redux";
 const ECommerceDashboard: React.FC = () => {
 
   const meData = useSelector((state: { meData: any}) => state.meData)
-  console.log(meData, "Here is the user's data")
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">

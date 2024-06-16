@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSelector } from "react-redux";
 
 const DropdownUser = () => {
+  const meData = useSelector((state: { meData: any}) => state.meData)
+
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const trigger = useRef<any>(null);
@@ -44,7 +48,7 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Thomas Anree
+            {meData?.ME?.fullname}
           </span>
           <span className="block text-xs">UX Designer</span>
         </span>

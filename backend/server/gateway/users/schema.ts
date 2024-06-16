@@ -1,5 +1,5 @@
 
-import ReponseType from "./types/ResponseType"
+import ResponseType from "./types/ResponseType"
 import addUserResolver from "./resolver/toCreate/addUserResolver"
 import updateUserResolver from "./resolver/toUpdate/updateUserResolver"
 import { AddUsersTypeInput } from "./types/AddUsersTypeInput"
@@ -12,7 +12,7 @@ import { UpdateUserAccountStatusInputType } from "./types/UpdateUserAccountStatu
 import UpdateAccountStatusResolver from "./resolver/toUpdateAccountStatus/toUpdateAccountStatusResolver"
 import UpdateUserRoleResolver from "./resolver/toUpdateUserRole/toUpdateUserRoleResolver"
 import { UpdateUserRoleInputType } from "./types/UpdateUserRoleInputType"
-import { CategoryReponseType } from "./types/CATEGORY_RESPONSE_TYPE"
+import { CategoryResponseType } from "./types/CATEGORY_RESPONSE_TYPE"
 import CreateCategoryResolver from "./resolver/toCreateCategory/CreateCategoryResolver"
 import { CategoryInputType } from "./types/CATEGORY_INPUT_TYPE"
 import { ME_QUERY_RETURN_TYPE } from "./types/ME_QUERY_USER_RETURN_TYPE"
@@ -21,6 +21,11 @@ import UsersList from "./types/UsersList"
 import { EmailInputType } from "./types/EmailInputType"
 import CreateEmailSendResolver from "./resolver/toEmailVerify/CreateEmailSendResolver"
 import isVerified from "./resolver/isVerified"
+import { OtpInputType } from "./types/OtpInputType"
+import VerifyOtpResolver from "./resolver/VerifyOtpResolver"
+import { resetPasswordType } from "./types/resetPasswordType"
+import VerifyOtpResolvert from "./resolver/resetPasswordResolver"
+import resetPasswordResolver from "./resolver/resetPasswordResolver"
 
 export const userQuery = {
     ME: {
@@ -31,7 +36,7 @@ export const userQuery = {
 
 export const usersMutation = {
     addUser: {
-        type: ReponseType,
+        type: AuthPayload,
         args: {
             input: {
                 type: AddUsersTypeInput
@@ -41,14 +46,11 @@ export const usersMutation = {
     },
 
     isVerified: {
-        type: ReponseType,
-        // args: {
-        //   input: { type: SetPasswordInput },
-        // },
+        type: ResponseType,
         resolve: isVerified,
       },
     updateUserSettingsForm: {
-        type: ReponseType,
+        type: ResponseType,
         args: {
             input: {
                 type: UpdateUserTypeInput
@@ -58,7 +60,7 @@ export const usersMutation = {
     },
 
     updateAccountStatus: {
-        type: ReponseType,
+        type: ResponseType,
         args: {
             input: {
                 type: UpdateUserAccountStatusInputType
@@ -68,7 +70,7 @@ export const usersMutation = {
     },
 
     updateUserRole: {
-        type: ReponseType,
+        type: ResponseType,
         args: {
             input: {
                 type: UpdateUserRoleInputType
@@ -88,7 +90,7 @@ export const usersMutation = {
     },
 
     createCategory: {
-        type: CategoryReponseType,
+        type: CategoryResponseType,
         args: {
             input: {
                 type: CategoryInputType
@@ -98,7 +100,7 @@ export const usersMutation = {
     },
 
     getUserEmailForVerification: {
-        type: ReponseType,
+        type: ResponseType,
         args: {
             input: {
                 type: EmailInputType
@@ -106,9 +108,33 @@ export const usersMutation = {
         },
         resolve: CreateEmailSendResolver
     },
+    resetPassword: {
+        type: ResponseType,
+        args: {
+            input: {
+                type: resetPasswordType
+            }
+        },
+        resolve: resetPasswordResolver
+    },
 
-    // checkUserIsVerified: {
-    //     type: ReponseType,
-    //     resolve: CheckIsUserVerifiedResolver
-    // }
+    verifyOtp: {
+        type: ResponseType,
+        args: {
+            input: {
+                type: OtpInputType
+            }
+        },
+        resolve: VerifyOtpResolver
+    },
+
+    resetPasswordMail: {
+        type: ResponseType,
+        args: {
+            input: {
+                type: OtpInputType
+            }
+        },
+        resolve: VerifyOtpResolver
+    },
 }

@@ -29,14 +29,16 @@ export type AddUsersTypeInput = {
   date_of_birth?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['EmailAddress']['input'];
   first_name?: InputMaybe<Scalars['String']['input']>;
+  fullname: Scalars['String']['input'];
   image?: InputMaybe<Scalars['String']['input']>;
+  is_verified?: InputMaybe<Scalars['Boolean']['input']>;
   last_name?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Location>;
   password: Scalars['String']['input'];
   phone_number?: InputMaybe<PhoneNumber>;
   role?: InputMaybe<Role>;
   two_factor_enabled?: InputMaybe<Scalars['Boolean']['input']>;
-  username: Scalars['String']['input'];
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AuthPayload = {
@@ -63,11 +65,15 @@ export type CategoryInputType = {
   parent?: InputMaybe<CategoryInputType>;
 };
 
-export type CategoryReponseType = {
-  __typename?: 'CategoryReponseType';
+export type CategoryResponseType = {
+  __typename?: 'CategoryResponseType';
   category?: Maybe<Category>;
   errors?: Maybe<Array<Maybe<Error>>>;
   success?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type EmailInputType = {
+  email: Scalars['EmailAddress']['input'];
 };
 
 export type Error = {
@@ -90,7 +96,7 @@ export type LoggedInUserResponseType = {
   email: Scalars['String']['output'];
   role: Scalars['String']['output'];
   two_factor_enabled: Scalars['Boolean']['output'];
-  username: Scalars['String']['output'];
+  username?: Maybe<Scalars['String']['output']>;
 };
 
 export type LoginUserType = {
@@ -102,10 +108,16 @@ export type MeQueryReturnType = {
   __typename?: 'MeQueryReturnType';
   account_status?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
+  fullname?: Maybe<Scalars['String']['output']>;
+  is_verified?: Maybe<Scalars['Boolean']['output']>;
   password?: Maybe<Scalars['String']['output']>;
   role?: Maybe<Scalars['String']['output']>;
   two_factor_enabled?: Maybe<Scalars['Boolean']['output']>;
-  username?: Maybe<Scalars['String']['output']>;
+};
+
+export type OtpInputType = {
+  email: Scalars['EmailAddress']['input'];
+  otp: Scalars['String']['input'];
 };
 
 export type PhoneNumber = {
@@ -113,11 +125,10 @@ export type PhoneNumber = {
   prefix?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type ReponseType = {
-  __typename?: 'ReponseType';
+export type ResponseType = {
+  __typename?: 'ResponseType';
   errors?: Maybe<Array<Maybe<Error>>>;
   success?: Maybe<Scalars['Boolean']['output']>;
-  user?: Maybe<User>;
 };
 
 export enum Role {
@@ -145,21 +156,17 @@ export type UpdateUserTypeInput = {
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type User = {
-  __typename?: 'User';
-  email: Scalars['String']['output'];
-  password: Scalars['String']['output'];
-  username: Scalars['String']['output'];
-};
-
 export type Mutation = {
   __typename?: 'mutation';
-  addUser?: Maybe<ReponseType>;
-  createCategory?: Maybe<CategoryReponseType>;
+  addUser?: Maybe<AuthPayload>;
+  createCategory?: Maybe<CategoryResponseType>;
+  getUserEmailForVerification?: Maybe<ResponseType>;
+  isVerified?: Maybe<ResponseType>;
   login?: Maybe<AuthPayload>;
-  updateAccountStatus?: Maybe<ReponseType>;
-  updateUserRole?: Maybe<ReponseType>;
-  updateUserSettingsForm?: Maybe<ReponseType>;
+  updateAccountStatus?: Maybe<ResponseType>;
+  updateUserRole?: Maybe<ResponseType>;
+  updateUserSettingsForm?: Maybe<ResponseType>;
+  verifyOtp?: Maybe<ResponseType>;
 };
 
 
@@ -170,6 +177,11 @@ export type MutationAddUserArgs = {
 
 export type MutationCreateCategoryArgs = {
   input?: InputMaybe<CategoryInputType>;
+};
+
+
+export type MutationGetUserEmailForVerificationArgs = {
+  input?: InputMaybe<EmailInputType>;
 };
 
 
@@ -192,58 +204,64 @@ export type MutationUpdateUserSettingsFormArgs = {
   input?: InputMaybe<UpdateUserTypeInput>;
 };
 
+
+export type MutationVerifyOtpArgs = {
+  input?: InputMaybe<OtpInputType>;
+};
+
 export type Query = {
   __typename?: 'query';
   ME?: Maybe<MeQueryReturnType>;
 };
 
-export type QueryQueryVariables = Exact<{ [key: string]: never; }>;
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type QueryQuery = { __typename?: 'query', ME?: { __typename?: 'MeQueryReturnType', username?: string | null, email?: string | null, password?: string | null, account_status?: string | null, role?: string | null, two_factor_enabled?: boolean | null } | null };
+export type MeQuery = { __typename?: 'query', ME?: { __typename?: 'MeQueryReturnType', fullname?: string | null, email?: string | null, password?: string | null, two_factor_enabled?: boolean | null, account_status?: string | null, role?: string | null, is_verified?: boolean | null } | null };
 
 
-export const QueryDocument = gql`
-    query Query {
+export const MeDocument = gql`
+    query ME {
   ME {
-    username
+    fullname
     email
     password
+    two_factor_enabled
     account_status
     role
-    two_factor_enabled
+    is_verified
   }
 }
     `;
 
 /**
- * __useQueryQuery__
+ * __useMeQuery__
  *
- * To run a query within a React component, call `useQueryQuery` and pass it any options that fit your needs.
- * When your component renders, `useQueryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useQueryQuery({
+ * const { data, loading, error } = useMeQuery({
  *   variables: {
  *   },
  * });
  */
-export function useQueryQuery(baseOptions?: Apollo.QueryHookOptions<QueryQuery, QueryQueryVariables>) {
+export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<QueryQuery, QueryQueryVariables>(QueryDocument, options);
+        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
       }
-export function useQueryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QueryQuery, QueryQueryVariables>) {
+export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<QueryQuery, QueryQueryVariables>(QueryDocument, options);
+          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
         }
-export function useQuerySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<QueryQuery, QueryQueryVariables>) {
+export function useMeSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MeQuery, MeQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<QueryQuery, QueryQueryVariables>(QueryDocument, options);
+          return Apollo.useSuspenseQuery<MeQuery, MeQueryVariables>(MeDocument, options);
         }
-export type QueryQueryHookResult = ReturnType<typeof useQueryQuery>;
-export type QueryLazyQueryHookResult = ReturnType<typeof useQueryLazyQuery>;
-export type QuerySuspenseQueryHookResult = ReturnType<typeof useQuerySuspenseQuery>;
-export type QueryQueryResult = Apollo.QueryResult<QueryQuery, QueryQueryVariables>;
+export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
+export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
+export type MeSuspenseQueryHookResult = ReturnType<typeof useMeSuspenseQuery>;
+export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;

@@ -2,54 +2,53 @@
 import Link from "next/link";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
-import { schema } from "./SchemaValidation";
+import { emailschema } from "./SchemaValidation/email";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormValues } from "./types";
 import { useMutation } from "@apollo/client";
-import RESET_PASSWORD from '../.././graphql/mutations/RESET_PASSWORD.graphql'
+import SEND_EMAIL from '../.././graphql/mutations/SEND_MAIL.graphql'
 import { permanentRedirect, redirect, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useMeQuery } from "@/graphql/generated/schema";
+import { EmailFormValues } from "./types/email-form";
+
+export default function SendEMail() {
+  // const router = useRouter();
+  const [isAuthenticated, serIsAuthenticated] = useState(false);
+  
+//   const { data: userData } = useMeQuery({
+//     fetchPolicy: "network-only",
+//   });
+
+//   const authuser = userData?.ME?.is_verified
 
 
-const PasswordReset: React.FC = () => {
-
-  const [isUserExist, serisUserExist] = useState(false);
-
-
-  const router = useRouter();
-  const {
+const {
     handleSubmit,
     reset,
     register,
     formState: { errors },
-  } = useForm({
-      defaultValues: {
-      new_password: "",
-      confirm_password: ""
+  } = useForm<EmailFormValues>({
+    defaultValues: {
+      email: "",
     },
     mode: "onChange",
     reValidateMode: "onChange",
-    resolver: yupResolver(schema)
-  })
+    resolver: yupResolver(emailschema),
+  });
 
-  const [PasswordResetUser, { data, loading, error }] = useMutation(RESET_PASSWORD);
-  const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    try {
-      const PasswordResetresponse = await PasswordResetUser({
+  const [sendMail, { data, loading, error }] = useMutation(SEND_EMAIL);
+  const onSubmit: SubmitHandler<EmailFormValues> = async (values) => {
+    console.log(values, "hi")
+    const mailsent = await sendMail({
         variables: {
           input: 
             {
-              new_password: values.new_password,
-              confirm_password: values.confirm_password
+              email: values.email,
             }
         }
       });
-      if(PasswordResetresponse.data.resetPassword.success == true) {
-          router.push('/login')
-      }
-    } catch (e) {
-      console.log(e);
-    }
+
   }
 
   return (
@@ -58,7 +57,7 @@ const PasswordReset: React.FC = () => {
       <div className="flex items-center justify-center px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md">
           <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl">
-            Reset Password
+            Please insert your Email
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Go back to <Link href="/login"> <span className="font-semibold text-black transition-all duration-200 hover:underline">Login Page !{" "}</span></Link>
@@ -71,45 +70,24 @@ const PasswordReset: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <label htmlFor="" className="text-base font-medium text-gray-900">
                     {" "}
-                    Password{" "}
+                    Email{" "}
                   </label>
                 </div>
                 <div className="mt-2">
                   <input
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                    type="password"
-                    placeholder="Password"
-                    {...register("new_password")}
+                    type="email"
+                    placeholder="Email"
+                    {...register("email")}
                   />
-                  {errors.new_password && (
+                  {errors.email && (
                     <p className='text-[#FF5733] text-xs  pt-2'>
-                      {errors.new_password.message}
+                      {errors.email.message}
                     </p>
                   )} 
                 </div>
               </div>
               <div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <label htmlFor="" className="text-base font-medium text-gray-900">
-                    {" "}
-                    Confirm Password{" "}
-                  </label>
-                </div>
-                <div className="mt-2">
-                  <input
-                    className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
-                    type="password"
-                    placeholder="Password"
-                    {...register("confirm_password")}
-                  />
-                  {errors.confirm_password&& (
-                    <p className='text-[#FF5733] text-xs  pt-2'>
-                      {errors.confirm_password.message}
-                    </p>
-                  )} 
-                </div>
-              </div>
               <p className="mt-2 text-sm text-gray-600">
                 Don&#x27;t have an account?{" "} 
                 <span className="font-semibold text-black transition-all duration-200 hover:underline">
@@ -123,7 +101,7 @@ const PasswordReset: React.FC = () => {
                   type="submit"
                   className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
                 >
-                  Confirm Reset{" "}
+                  Send Email Verification{" "}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -158,4 +136,3 @@ const PasswordReset: React.FC = () => {
   );
 }
 
-export default PasswordReset;

@@ -1,21 +1,19 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import PasswordReset from "@/components/password-reset/password-reset";
-
-import IS_VERIFIED from "../../../graphql/mutations/IS_VERIFIED.graphql";
-import { useMutation } from "@apollo/client";
 import { setCookie } from "cookies-next";
+import PasswordReset from "@/components/password-reset/password-reset";
+import { useParams } from "next/navigation";
+
 
 export default function Page() {
-  const [createUser, { data, loading, error }] = useMutation(IS_VERIFIED);
+  const params = useParams();
+  const slug = params['password-set'];
+  const token = slug.toString();
+
+  console.log("here is the token", token)
   useEffect(() => {
-    const currentUrl = window.location.href;
-
-    const token = currentUrl.split("/password-reset/")[1];
-    console.log(token)
-
-    setCookie("token", token);
-    createUser();
-  }, []);
-  return <h1>verified</h1>;
+    setCookie("tingtoken", token);
+    console.log("token", token)
+  }, [token]);
+  return <PasswordReset/>;
 }

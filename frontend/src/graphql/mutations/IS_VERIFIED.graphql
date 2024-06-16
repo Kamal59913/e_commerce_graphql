@@ -1,11 +1,6 @@
 mutation IsVerified {
   isVerified {
     success
-    user {
-      username
-      email
-      password
-    }
     errors {
       message
       code

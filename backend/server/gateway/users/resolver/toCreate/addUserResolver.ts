@@ -1,7 +1,11 @@
+import OtpModel from "@/db/models/otp_model/otp.model";
 import userModel from "@/db/models/users_model/users.model";
 import jwtGen from "@/utils/jwtGen";
 import EmailSender from "@/utils/services/emailSender";
-import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplate";
+import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplateOTP";
+import otpGenerator from "otp-generator";
+import { generateToken } from "../../jwtGen/jwtGwn";
+
 
 
 const addUserResolver = async (parents: unknown, args, context) => {
@@ -26,21 +30,46 @@ const addUserResolver = async (parents: unknown, args, context) => {
     const user = await new userModel({
       ...args.input,
     }).save();
-    const userID = user._id.toString();
-    const hashId = await jwtGen({id:userID}, '1h');
+    
 
+    const otp = otpGenerator.generate(4, {
+      digits: true,
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    const newOtp =  new OtpModel({
+      otp,
+      email,
+    })
+
+    await newOtp.save()
+    //Is this the plave where I am supposed to generate opt and send it to the email verification
+
+
+    const token = await generateToken(user);
+
+    console.log(token, "token")
     const FRONTEND_URL = process.env.FRONTEND_URL;
-    const url = `${FRONTEND_URL}/password-reset/${hashId}`;
-    const template = emailVerifyTemplate(url);
-    const subject = `User verify`;
+    const url = `${FRONTEND_URL}/otp-verification`;
+
+    const objectToSend = {
+      url: url,
+      otp: otp
+    } 
+    
+    const template = emailVerifyTemplate(objectToSend);
+    const subject = `User verification - OTP`;
+
 
     await EmailSender([user.email], template, subject);
 
     return {
-      success: true,
+      token: token,
       user: user,
-      message: 'successfully saved the user' 
-    }
+      success: true,
+  }
   } catch (e) {
     console.log(e);
     return {

@@ -4,7 +4,7 @@ import { LocationType } from "@/db/models/users_types/users_types";
 export const ME_QUERY_RETURN_TYPE = new GraphQLObjectType({
     name: 'MeQueryReturnType',
     fields: {
-      username: {type: GraphQLString},
+      fullname: {type: GraphQLString},
       email: {type: GraphQLString},
       password: {type: GraphQLString},
       two_factor_enabled: {type: GraphQLBoolean},

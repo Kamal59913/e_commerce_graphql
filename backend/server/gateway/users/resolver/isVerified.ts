@@ -5,8 +5,7 @@ const isVerified = async (
   context,
 ) => {
   try {
-
-      console.log(context)
+    console.log(context, "here is the context")
     if (context?.user?.error) {
       return {
         errors: [
@@ -17,9 +16,8 @@ const isVerified = async (
         ],
       };
     }
-
-    const user = await userModel.findOne({ _id: context.user.id });
-
+    const user = await userModel.findById(context.user._id);
+    console.log(user, "here is the user")
     if (!user) {
       return {
         errors: [
@@ -31,8 +29,8 @@ const isVerified = async (
       };
     }
 
-    await userModel.findByIdAndUpdate(
-      { _id: context.user.id },
+    const updatedUser = await userModel.findByIdAndUpdate(
+      { _id: context.user._id },
       {
         $set: {
             is_verified: true,
@@ -42,8 +40,13 @@ const isVerified = async (
         new: true,
       },
     );
+
+    console.log(updatedUser, "here is the updated user")
+
+
     return {
-      errors: null,
+      success: true,
+      errors: null
     };
   } catch (e) {
     console.log(e);

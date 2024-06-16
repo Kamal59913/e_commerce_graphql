@@ -25,6 +25,11 @@ const EmailSender = async (
         user: process.env.SENDER_MAIL,
         pass: process.env.SENDER_MAIL_PASSWORD,
       },
+      tls: {
+        // do not fail on invalid certs
+        rejectUnauthorized: false,
+      },
+    
     });
 
   
@@ -36,7 +41,13 @@ const EmailSender = async (
       // reason:reason
     };
 
-    const emailSend = await transport.sendMail(msg);
+    const emailSend = await transport.sendMail(msg, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log('Message sent: %s', info.messageId);
+    });
+    
     if (emailSend) {
       return `Verification email sent to: ${email}`;
     }

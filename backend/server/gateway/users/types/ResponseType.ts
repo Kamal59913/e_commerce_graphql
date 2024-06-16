@@ -1,19 +1,15 @@
   import { GraphQLObjectType, GraphQLList, GraphQLBoolean } from 'graphql';
   import Error from '../../types/ErrorType';
-  import { UserType } from './UsersType';
 
-  const ReponseType = new GraphQLObjectType({
-    name: 'ReponseType',
+  const ResponseType = new GraphQLObjectType({
+    name: 'ResponseType',
     fields: () => ({
       success: {
         type: GraphQLBoolean
-      },
-      user: {
-        type: UserType
       },
       errors: {
         type: new GraphQLList(Error),
       },
     }),
   });
-  export default ReponseType;
+  export default ResponseType;
