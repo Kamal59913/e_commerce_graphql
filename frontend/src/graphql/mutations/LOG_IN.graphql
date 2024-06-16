@@ -7,6 +7,7 @@ mutation Mutation($input: LoginUserType) {
       two_factor_enabled
       account_status
       role
+      is_verified
     }
     errors {
       message

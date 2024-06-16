@@ -13,7 +13,7 @@ import { useMeQuery } from "@/graphql/generated/schema";
 
 
 export default function LogIn() {
-  // const router = useRouter();
+  const router = useRouter();
   const [isAuthenticated, serIsAuthenticated] = useState(false);
   
   const { data: userData } = useMeQuery({
@@ -56,17 +56,17 @@ export default function LogIn() {
         }
       });
 
-      console.log(loginresponse)
+      if(loginresponse.data.login.user.is_verified) {
+        router.push('/dashboard')
+      }
       const token = loginresponse.data.login.token
       console.log(token, "here is the login page token")
       if(token) {
-        setCookie('token', token, {
+        setCookie('tokken', token, {
           path: '/',
         });
         console.log("Here is the token", token)
-        
-        serIsAuthenticated(true)
-      } 
+        } 
     } catch (e) {
       console.log(e);
     }

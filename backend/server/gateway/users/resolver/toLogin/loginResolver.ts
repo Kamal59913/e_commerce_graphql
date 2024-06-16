@@ -44,7 +44,7 @@ const loginResolver = async (parent, args, context) => {
         errors: [{ message: 'User Not Verified', code: 'NOT_VERIFIED' }]
     };    
   }
-
+    console.log(token, user, null, "here is all")
 
     return {
         token: token,

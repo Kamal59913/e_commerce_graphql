@@ -8,5 +8,6 @@ export const LoggedInUserResponseType = new GraphQLObjectType({
       two_factor_enabled: {type: new GraphQLNonNull(GraphQLBoolean)},
       account_status: {type: new GraphQLNonNull(GraphQLString)},
       role: {type: new GraphQLNonNull(GraphQLString)},
+      is_verified: {type: new GraphQLNonNull(GraphQLBoolean)},
     }
   })
