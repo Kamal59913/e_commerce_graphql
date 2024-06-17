@@ -1,30 +1,29 @@
 
 import ResponseType from "./types/ResponseType"
-import addUserResolver from "./resolver/toCreate/addUserResolver"
-import updateUserResolver from "./resolver/toUpdate/updateUserResolver"
+import addUserResolver from "./resolver/SignUpResolver"
+import updateUserResolver from "./resolver/updateUserResolver"
 import { AddUsersTypeInput } from "./types/AddUsersTypeInput"
 import { UpdateUserTypeInput } from "./types/UpdateUserTypeInput"
 import AuthPayload from "./types/AuthPayLoad/AuthPayload"
 import { LoginUserType } from "./types/LoginUserType"
-import loginResolver from "./resolver/toLogin/loginResolver"
+import loginResolver from "./resolver/loginResolver"
 import MEQueryResolver from "./resolver/MEQueryResolve"
 import { UpdateUserAccountStatusInputType } from "./types/UpdateUserAccountStatusInputType"
-import UpdateAccountStatusResolver from "./resolver/toUpdateAccountStatus/toUpdateAccountStatusResolver"
-import UpdateUserRoleResolver from "./resolver/toUpdateUserRole/toUpdateUserRoleResolver"
+import UpdateAccountStatusResolver from "./resolver/toUpdateAccountStatusResolver"
+import UpdateUserRoleResolver from "./resolver/toUpdateUserRoleResolver"
 import { UpdateUserRoleInputType } from "./types/UpdateUserRoleInputType"
 import { CategoryResponseType } from "./types/CATEGORY_RESPONSE_TYPE"
-import CreateCategoryResolver from "./resolver/toCreateCategory/CreateCategoryResolver"
+import CreateCategoryResolver from "./resolver/CreateCategoryResolver"
 import { CategoryInputType } from "./types/CATEGORY_INPUT_TYPE"
 import { ME_QUERY_RETURN_TYPE } from "./types/ME_QUERY_USER_RETURN_TYPE"
 import { UserType } from "./types/UsersType"
 import UsersList from "./types/UsersList"
 import { EmailInputType } from "./types/EmailInputType"
-import CreateEmailSendResolver from "./resolver/toEmailVerify/CreateEmailSendResolver"
+import CreateEmailSendResolver from "./resolver/CreateEmailSendResolver"
 import isVerified from "./resolver/isVerified"
 import { OtpInputType } from "./types/OtpInputType"
 import VerifyOtpResolver from "./resolver/VerifyOtpResolver"
 import { resetPasswordType } from "./types/resetPasswordType"
-import VerifyOtpResolvert from "./resolver/resetPasswordResolver"
 import resetPasswordResolver from "./resolver/resetPasswordResolver"
 
 export const userQuery = {
@@ -108,6 +107,7 @@ export const usersMutation = {
         },
         resolve: CreateEmailSendResolver
     },
+
     resetPassword: {
         type: ResponseType,
         args: {

@@ -11,6 +11,8 @@ import { permanentRedirect, redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMeQuery } from "@/graphql/generated/schema";
 import { EmailFormValues } from "./types/email-form";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function SendEMail() {
   // const router = useRouter();
@@ -48,11 +50,16 @@ const {
             }
         }
       });
-
+      if(mailsent.data.getUserEmailForVerification.success) {
+          toast.success("Email Sent", {
+            position: "top-center"
+          })
+      }
   }
 
   return (
     <section className='h-screen'>
+      <ToastContainer/>
         <div className="grid grid-cols-1 lg:grid-cols-2"> 
       <div className="flex items-center justify-center px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md">

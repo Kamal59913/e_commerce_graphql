@@ -1,29 +1,23 @@
 import userModel from "@/db/models/users_model/users.model";
 import EmailSender from "@/utils/services/emailSender";
 import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplatePasswordReset";
-import { jwtVerify } from "../../authMiddleWare/authMiddleware";
-import { generateToken } from "../../jwtGen/jwtGwn";
+import { jwtVerify } from "../../../utils/authMiddleware";
+import { generateToken } from "../../../utils/jwtGwn";
 
 const CreateEmailSendResolver = async (parent, args, context) => {
-
-  console.log("reached here")
   try {
    const {email} = args.input;
     console.log(email)
    /*check if username or email already exists in the database*/
-       const errors = [];
-
 
    const emailExists = await userModel.findOne({email})
 
    if(!emailExists) {
-    errors.push({ message: "User with this emal does not exist", code: "EMAIL_NOT_EXIST"});
-    }
+    return {
+      errors: [{ success: false, message: 'Email does not exists', code: 'EMAIL_NOT_EXIST' }]
+  };    
+}
   
-   if (errors.length > 0) {
-     return { errors };
-   }
-
    const tokenToSent = await generateToken(emailExists)    
    console.log(tokenToSent)
    const url = `${process.env.FRONTEND_URL}/password-reset/${tokenToSent}`

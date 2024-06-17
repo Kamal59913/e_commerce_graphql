@@ -5,7 +5,10 @@ import cors from 'cors';
 import { schema } from './schema';
 import { config } from 'dotenv';
 import initiateMongoServer from './db/dbConnection';
-import { jwtVerify } from './gateway/users/authMiddleWare/authMiddleware';
+import { jwtVerify } from './utils/authMiddleware';
+import uploadRouter from '../.././backend/server/utils/api/router/image.route'
+
+
 config()
 const app: Application = express()
 
@@ -33,12 +36,8 @@ const server:any = new ApolloServer({
         return { user }
     }
 })
-/*route import*/
-import uploadRouter from '../.././backend/server/utils/api/router/image.route'
 
-/*routes declaration*/
 app.use('/user',uploadRouter)
-
 
 server.start().then(() => {
     server.applyMiddleware({ app, path: '/graphql' });

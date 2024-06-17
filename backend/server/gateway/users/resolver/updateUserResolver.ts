@@ -1,4 +1,4 @@
-import userModel from "../../../../db/models/users_model/users.model";
+import userModel from "@/db/models/users_model/users.model";
 
 const updateUserResolver = async (parent, args, context) => {
   try {

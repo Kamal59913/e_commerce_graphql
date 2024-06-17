@@ -1,34 +1,42 @@
 "use client"
+
 import Link from "next/link";
-import { SubmitHandler, useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
+import { passwordStrength } from "check-password-strength";
+import { useMutation } from '@apollo/client'
+import { SubmitHandler, useForm } from "react-hook-form";
+import SIGN_UP from "../../graphql/mutations/SIGN_UP_USER.graphql"
 import { schema } from "./SchemaValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormValues } from "./types";
-import { useMutation } from "@apollo/client";
-import LOG_IN from '../.././graphql/mutations/LOG_IN.graphql'
-import { permanentRedirect, redirect, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useMeQuery } from "@/graphql/generated/schema";
-import { toast, ToastContainer } from "react-toastify";
+import { redirect, useRouter } from "next/navigation";
+import { ErrorObject } from "./types/Error_Object";
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-export default function LogIn() {
+export default function Signup() {
   const router = useRouter();
-  const [isAuthenticated, serIsAuthenticated] = useState(false);
-  const [email, setEmail] = useState('');
-  const { data: userData } = useMeQuery({
-    fetchPolicy: "network-only",
-  });
 
-  const authuser = userData?.ME?.is_verified
-  console.log(authuser, "authuser")
-  // useEffect(()=> {
-  //   if(authuser == true) {
-  //     redirect('/dashboard')
-  //   }
-  // }, [authuser])
+  const [isAuthenticated, serIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    if(isAuthenticated) {
+      setTimeout(() => {
+        router.push('/otp-verification')
+      }, 2000);
+    }
+}, [isAuthenticated, router])
+
+
+  const notify = () => {
+    toast.warning("Email Already Exists !", {
+      position: "top-center"
+    });
+
+  };
+     
 
   const {
     handleSubmit,
@@ -36,118 +44,133 @@ export default function LogIn() {
     register,
     formState: { errors },
   } = useForm({
-      defaultValues: {
-      email: "",
-      password: ""
+    defaultValues: {
+      fullname:"",
+      email: "",  
+      password: "", 
     },
     mode: "onChange",
     reValidateMode: "onChange",
-    resolver: yupResolver(schema)
-  })
+    resolver: yupResolver(schema),
+  });
 
-  const [loginUser, { data, loading, error }] = useMutation(LOG_IN);
-  const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    setEmail(values.email)
-    try {
-      const loginresponse = await loginUser({
-        variables: {
-          input: 
-            {
-              email: values.email,
-              password: values.password
-            }
+
+    const [createUser, { data, loading, error }] = useMutation(SIGN_UP);
+
+
+    /*To keep the track of password strength*/
+    let [passwordstrength, setpasswordStrength] = useState('');
+    const onSubmit: SubmitHandler<FormValues> = async (values) => {     
+      try {
+        const signupresponse = await createUser({ 
+          variables: { 
+            input: 
+              { 
+                fullname: values.fullname,
+                email: values.email,
+                password: values.password,
+              } 
+            } 
+          });
+        
+        if(signupresponse.data.addUser.success == true) {
+          toast.success("Successfully Signed Up", {
+            position: "top-center"
+          })
         }
-      });
-      if(loginresponse.data.login.success) {
-        toast.success(`Successfully logged in`, {
-          position: "top-center",
-        })
-        setTimeout(() => {
-          router.push("/dashboard")
-        }, 1000);
-      }
-      const errors = loginresponse.data.login.errors;
-      if(errors) {
-          if(errors.length > 0) {
-            errors.forEach((error: any) => {
-                if(error.code == 'NOT_VERIFIED') {
-                  console.log(email, 'email')
-                  toast.warning(`Please verify your email, A verification Link has been sent.`, {
-                    position: "top-center",
-                    autoClose: 10000,
-                  })
-                } else if(error.code == 'INVALID_CREDENTIALS') {
-                  console.log(email, 'email')
-                  toast.error(`Wrong Password.`, {
-                    position: "top-center",
-                    autoClose: 10000,
-                  })
-                } 
-                else if(error.code == 'USER_NOT_FOUND') {
-                  console.log(email, 'email')
-                  toast.error(`User with this email does not exist.`, {
-                    position: "top-center",
-                    autoClose: 10000,
-                  })
-                } 
-            });
-          }
-      }
-      console.log(loginresponse.data.login.user, "here is the login response")
+        const errors= signupresponse.data.addUser.errors;
+        const token = signupresponse.data.addUser.token
+        if(token) {
+          setCookie('token', token, {
+            path: '/',
+          });
+          console.log("Here is the token", token)
+          
+          serIsAuthenticated(true)
+        }
 
-      if(loginresponse.data.login.user) {
-
-        // router.push('/dashboard')
-      }
-      const token = loginresponse.data.login.token
-      console.log(token, "here is the login page token")
-      if(token) {
-        setCookie('tokken', token, {
-          path: '/',
-        });
-        console.log("Here is the token", token)
+        if(errors) {
+          if(errors.length>0) {
+            errors.map((num: any, index: any) => {
+                if(num.code == "INVALID_EMAIL") {
+                  toast.error(num.message, {
+                    position: "top-center"
+                  });
+                } 
+            })
+          } 
         } 
-    } catch (e) {
-      console.log(e);
-    }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    const passwordBlankSpacevalidation = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      let strenth = passwordStrength(value).value
+      setpasswordStrength(strenth)
   }
 
   return (
-    <section className='h-screen'>
+    <section>
       <ToastContainer/>
-    <div className="grid grid-cols-1 lg:grid-cols-2"> 
+    <div className="grid grid-cols-1 lg:grid-cols-2">
       <div className="flex items-center justify-center px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md">
           <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl">
-            Sign in
+            Sign up
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-
-            <Link href="/signup"> Don&#x27;t have an account?{" "} 
+          <Link href="/login" className="flex flex-col">
+          <p className="mt-2 text-base text-gray-600">
+            Already have an account?{" "}
             <span
-              className="font-semibold text-black transition-all duration-200 hover:underline"
+              className="font-medium text-black transition-all duration-200 hover:underline"
             >
-              Create a free account
+              Sign In
             </span>
-            </Link>
           </p>
-          <form action="#" method="POST" className="mt-8" onSubmit={handleSubmit(onSubmit)}>
+          </Link>
+          <form className="mt-8" onSubmit={handleSubmit(onSubmit)}  >
             <div className="space-y-5">
               <div>
-                <label htmlFor="" className="text-base font-medium text-gray-900">
+              <div className="items-center justify-between">
+                <label htmlFor="name" className="text-base font-medium text-gray-900">
+                  {" "}
+                  Fullname{" "}
+                </label>  
+                </div>
+                <div className="mt-2">
+                  <input
+                    className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                    type="text"
+                    placeholder="First Name"
+                    id="name"
+                    {...register('fullname')} // Register the 'first_name' field here
+                  />
+                    {errors.fullname && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    {errors.fullname.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="email" className="text-base font-medium text-gray-900">
                   {" "}
                   Email address{" "}
                 </label>
+                  </div>
                 <div className="mt-2">
                   <input
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                     type="email"
                     placeholder="Email"
+                    id="email"
                     {...register("email")}
-
                   />
                   {errors.email && (
-                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    <p className='text-[#FF5733] text-xs pt-2'>
                     {errors.email.message}
                     </p>
                   )}
@@ -155,25 +178,23 @@ export default function LogIn() {
               </div>
               <div>
                 <div className="flex items-center justify-between">
-                  <label htmlFor="" className="text-base font-medium text-gray-900">
+                  <label
+                    htmlFor="password"
+                    className="text-base font-medium text-gray-900"
+                  >
                     {" "}
                     Password{" "}
                   </label>
-                  <Link
-                    href="/password-reset"
-                    title=""
-                    className="text-sm font-semibold text-black hover:underline"
-                  >
-                    {" "}
-                    Forgot password?{" "}
-                  </Link>
+                
                 </div>
                 <div className="mt-2">
                   <input
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                     type="password"
                     placeholder="Password"
+                    id="password"
                     {...register("password")}
+                    // onChange={passwordBlankSpacevalidation}
                   />
                   {errors.password && (
                     <p className='text-[#FF5733] text-xs  pt-2'>
@@ -181,13 +202,18 @@ export default function LogIn() {
                     </p>
                   )} 
                 </div>
+                {passwordstrength && (
+                  <div className="text-sm mt-1 text-gray-500">
+                    Password Strength: {passwordstrength}
+                  </div>
+                  )}
               </div>
               <div>
                 <button
                   type="submit"
                   className="inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
                 >
-                  Sign In{" "}
+                  Create Account{" "}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -222,7 +248,7 @@ export default function LogIn() {
                   <path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.467 0 8.529-3.249 8.529-8.934 0-.528-.081-1.097-.202-1.625z"></path>
                 </svg>
               </span>
-              Sign in with Google
+              Sign up with Google
             </button>
             <button
               type="button"
@@ -238,7 +264,7 @@ export default function LogIn() {
                   <path d="M13.397 20.997v-8.196h2.765l.411-3.209h-3.176V7.548c0-.926.258-1.56 1.587-1.56h1.684V3.127A22.336 22.336 0 0 0 14.201 3c-2.444 0-4.122 1.492-4.122 4.231v2.355H7.332v3.209h2.753v8.202h3.312z"></path>
                 </svg>
               </span>
-              Sign in with Facebook
+              Sign up with Facebook
             </button>
           </div>
         </div>
@@ -246,7 +272,7 @@ export default function LogIn() {
       <div className="h-screen w-full">
         <img
           className="mx-auto h-full w-full rounded-md object-cover"
-          src="https://images.unsplash.com/photo-1630673245362-f69d2b93880e?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=crop&amp;w=1740&amp;q=80"
+          src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?ixlib=rb-4.0.3&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=crop&amp;w=1742&amp;q=80"
           alt=""
         />
       </div>

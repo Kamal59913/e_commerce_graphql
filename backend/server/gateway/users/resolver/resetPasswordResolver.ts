@@ -2,11 +2,9 @@ import bcrypt from "bcrypt";
 import userModel from "@/db/models/users_model/users.model";
 
 const resetPasswordResolver = async (parents: unknown, args, context) => {
-  console.log("reached here");
   const { new_password, confirm_password } = args.input;
 
   try {
-    console.log(context, "here is the context");
     if (context?.user?.error) {
       return {
         errors: [
@@ -36,7 +34,7 @@ const resetPasswordResolver = async (parents: unknown, args, context) => {
         errors: [
           {
             message: "Passwords do not match",
-            code: "BAD_USER_INPUT",
+            code: "PASSWORD_NOT_MATCH",
           },
         ],
       };
@@ -56,8 +54,6 @@ const resetPasswordResolver = async (parents: unknown, args, context) => {
         new: true,
       }
     );
-
-    console.log(updatedUser, "here is the updated user");
 
     return {
       success: true,

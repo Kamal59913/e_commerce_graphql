@@ -1,7 +1,6 @@
 import userModel from "../../../db/models/users_model/users.model";
 
 const MEQueryResolver = async (parents: unknown, args, context) => {
-  console.log("reached here in my query resolver", context)
   try {
     if (context.user.error) {
       return {

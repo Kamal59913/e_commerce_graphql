@@ -1,4 +1,4 @@
-import CategoryModel from "../../../../db/models/categories_model/categories.model";
+import CategoryModel from "@/db/models/categories_model/categories.model";
 
 const CreateCategoryResolver = async (parent, args, context) => {
   try {

@@ -1,5 +1,6 @@
-mutation Mutation($input: AddUsersTypeInput) {
+mutation AddUser($input: AddUsersTypeInput) {
   addUser(input: $input) {
+    success
     token
     user {
       fullname
@@ -7,6 +8,7 @@ mutation Mutation($input: AddUsersTypeInput) {
       two_factor_enabled
       account_status
       role
+      is_verified
     }
     errors {
       message

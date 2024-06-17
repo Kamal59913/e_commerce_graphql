@@ -5,7 +5,6 @@ import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplateLogin";
 
 
 const CheckIsUserVerifiedResolver = async (parents: unknown, args, context) => {
-  console.log("reached here")
   try {
     const { email, fullname } = args.input;
     console.log(email, "here is the email")

@@ -12,17 +12,21 @@ import React, { useEffect, useState } from "react";
 
 import { MuiOtpInput } from "mui-one-time-password-input";
 import { useSelector } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
 const OtpVerification: React.FC = () => {
 
+  const router = useRouter();
   const [iseVerified, setIsVerified] = useState(false)
+
   useEffect(()=> {
     if(iseVerified) {
-      redirect('/dashboard')
+        redirect('/dashboard')
     }
-  },[iseVerified])
+  },[iseVerified, router])
   const meData = useSelector((state: { meData: any}) => state.meData)
   console.log(meData, "Here is the user's data")
   const [otp, setOtp] = useState('');
@@ -48,13 +52,29 @@ const OtpVerification: React.FC = () => {
         variables: {
           input: {
             email: meData?.ME?.email,
-            otp: formData.otp
+            otp: formData.otp ? formData.otp : null 
           }
         }
     })
-    if(OtpVerificationResponse.data.verifyOtp.success == true) {
-        setIsVerified(true)
+    if(OtpVerificationResponse.data.verifyOtp.errors) {
+      const errors = OtpVerificationResponse.data.verifyOtp.errors;
+    if (errors && errors.length > 0) {
+        errors.forEach((error: any) => {
+            if (error.code =="OTP_EXPIRED") {
+                toast.error(error.message, {
+                    position: "top-center"
+                });
+            }
+        });
     }
+    }
+    if(OtpVerificationResponse.data.verifyOtp.success == true) {
+        toast.success("OTP verified successfully", {
+          position: "top-center"
+        })
+        setTimeout(() => {
+          setIsVerified(true);
+        }, 2000);    }
   };
 console.log(iseVerified, "has verified or not")
   useEffect(() => {
@@ -65,6 +85,7 @@ console.log(iseVerified, "has verified or not")
   
   return (
     <section className='h-screen'>
+      <ToastContainer/>
         <div className="grid grid-cols-1 lg:grid-cols-2"> 
       <div className="flex items-center justify-center px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md">
@@ -97,9 +118,6 @@ console.log(iseVerified, "has verified or not")
                     render={({ field, fieldState }) => (
                       <>
                         <MuiOtpInput sx={{ gap: 1 }} {...field} length={4} />
-                        {/* {fieldState.invalid ? (
-                          <p>OTP invalid</p>
-                        ) : null} */}
                       </>
                     )}
                   />

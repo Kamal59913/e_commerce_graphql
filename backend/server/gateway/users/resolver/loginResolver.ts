@@ -1,7 +1,6 @@
-import userModel from "../../../../db/models/users_model/users.model";
-import { validateEmail, validatePassword, validateUsername } from "../../validation/validation";
-import { generateToken } from "../../jwtGen/jwtGwn";
-import { isPassWordCorrect } from "../../jwtGen/passWordVerify";
+import userModel from "../../../db/models/users_model/users.model";
+import { generateToken } from "../../../utils/jwtGwn";
+import { isPassWordCorrect } from "../../../utils/passWordVerify";
 import { emailVerifyTemplate } from "@/utils/template/emailVerifyTemplateLogin";
 import EmailSender from "@/utils/services/emailSender";
 
@@ -10,12 +9,11 @@ const loginResolver = async (parent, args, context) => {
     const { email, password} = args.input;
     const user = await userModel.findOne({email})
 
-        const errors = [];
 
     if (!user) {
       console.log("User not found with email: ", email);
       return {
-          errors: [{ message: 'User not found', code: 'USER_NOT_FOUND' }]
+          errors: [{ success: false, message: 'User not found', code: 'USER_NOT_FOUND' }]
       };
     }
     const ispasspordcorrect = await isPassWordCorrect(user.password ,password)
@@ -23,7 +21,7 @@ const loginResolver = async (parent, args, context) => {
     if (!ispasspordcorrect) {
       console.log("Invalid credentials for email: ", email);
       return {
-          errors: [{ message: 'Invalid credentials', code: 'INVALID_CREDENTIALS' }]
+          errors: [{ success: false, message: 'Invalid credentials', code: 'INVALID_CREDENTIALS' }]
       };
   }
 
@@ -41,12 +39,13 @@ const loginResolver = async (parent, args, context) => {
       await EmailSender([user.email], template, subject)
 
       return {  
-        errors: [{ message: 'User Not Verified', code: 'NOT_VERIFIED' }]
+        errors: [{ success: false, message: 'User Not Verified', code: 'NOT_VERIFIED' }]
     };    
   }
     console.log(token, user, null, "here is all")
 
     return {
+        success: true,
         token: token,
         user: user,
         errors: null,

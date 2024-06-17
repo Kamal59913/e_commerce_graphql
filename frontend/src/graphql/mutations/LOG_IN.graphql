@@ -1,5 +1,6 @@
-mutation Mutation($input: LoginUserType) {
+mutation Login($input: LoginUserType) {
   login(input: $input) {
+    success
     token
     user {
       fullname

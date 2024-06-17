@@ -3,11 +3,11 @@ import userModel from "@/db/models/users_model/users.model";
 
 
 const VerifyOtpResolver = async (parents: unknown, args, context) => {
-  console.log("reached here")
+  console.log("reached here in verify otp resolver")
   try {
     const { email, otp } = args.input;
     console.log(otp, "got the otp")
-    //1: will check if user with this email exists
+    //1: will check if user with  this email exists
     //we do not need to check it from the userModel, because the otp is genereated itslelf only because the user already exists
     //but lets see and verify it later on
 
@@ -33,7 +33,6 @@ const VerifyOtpResolver = async (parents: unknown, args, context) => {
   
     return {
       success: true,
-      // user: userExists,
       message: 'successfully verified the email' 
     }
   } catch (e) {
