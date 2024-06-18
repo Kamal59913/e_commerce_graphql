@@ -15,12 +15,12 @@ const CategoryCards: React.FC<CategoryCardsProps> = ({
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundColor: "rgba(173, 216, 230, 0.5)", // Light blue with 50% opacity
-    opacity: 0.6, // Adjust opacity as needed
+    opacity: 0.8, // Adjust opacity as needed
   };
   
   return (
-    <div className="relative">
-    <div className="rounded-sm h-[140px] border border-stroke bg-[#ADD8E6] px-7 py-6 shadow-default dark:border-strokedark dark:bg-[#2C3E50] flex items-center justify-center"
+    <div className="relative dark:text-white">
+    <div className="rounded-sm h-[160px] border border-stroke bg-[#ADD8E6] px-7 py-6 shadow-default dark:border-strokedark dark:bg-[#2C3E50] flex items-center justify-center"
     style={cardStyle}
     >
       </div>

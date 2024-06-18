@@ -4,13 +4,14 @@ import DropdownMessage from "./DropdownMessage";
 import DropdownNotification from "./DropdownNotification";
 import DropdownUser from "./DropdownUser";
 import Image from "next/image";
+import { CiShoppingCart, CiHeart } from "react-icons/ci";
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
   return (
-    <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
+    <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none dark:text-white">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
 
@@ -62,6 +63,7 @@ const Header = (props: {
 
         <div className="flex items-center gap-3 2xsm:gap-7">
           <ul className="flex items-center gap-2 2xsm:gap-4">
+            <Link href="/homepage"><div className="mr-4 font-semibold text-xl"> Shopify</div></Link>
             {/* <!-- Dark Mode Toggler --> */}
             <DarkModeSwitcher />
             {/* <!-- Dark Mode Toggler --> */}
@@ -70,7 +72,8 @@ const Header = (props: {
             <DropdownNotification />
             {/* <!-- Notification Menu Area --> */}
 
-            <p>Cart</p>
+            <Link href='/shopping-cart'> <div className="flex mr-4"> <span className="mr-1">Cart</span> <CiShoppingCart size={24}/></div> </Link>
+            <Link href='/wish-list'> <div className="flex"> <span className="mr-1">Wishlist</span> <CiHeart size={24}/></div> </Link>
 
           </ul>
 

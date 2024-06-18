@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, ReactNode } from "react";
-import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
+import ProductsFilterSidebar from "../Sidebar/products-filter-side-bar";
 
-export default function HomePageDL({
+export default function ProductsDisplayDL({
   children,
 }: {
   children: React.ReactNode;
@@ -13,6 +13,9 @@ export default function HomePageDL({
     <>
       {/* <!-- ===== Page Wrapper Start ===== --> */}
       <div className="flex h-screen overflow-hidden">
+        {/* <!-- ===== Sidebar Start ===== --> */}
+        <ProductsFilterSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        {/* <!-- ===== Sidebar End ===== --> */}
 
         {/* <!-- ===== Content Area Start ===== --> */}
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">

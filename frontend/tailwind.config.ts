@@ -234,6 +234,7 @@ const config: Config = {
       },
       transitionProperty: { width: "width", stroke: "stroke" },
       borderWidth: {
+        2: "0.4px",
         6: "6px",
         10: "10px",
         12: "12px",
