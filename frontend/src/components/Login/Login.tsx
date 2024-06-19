@@ -22,8 +22,8 @@ export default function LogIn() {
     fetchPolicy: "network-only",
   });
 
-  const authuser = userData?.ME?.is_verified
-  console.log(authuser, "authuser")
+  // const authuser = userData?.ME?.is_verified
+  // console.log(authuser, "authuser")
   // useEffect(()=> {
   //   if(authuser == true) {
   //     redirect('/dashboard')
@@ -59,12 +59,25 @@ export default function LogIn() {
         }
       });
       if(loginresponse.data.login.success) {
+        const userRole = loginresponse.data.login.user.role
         toast.success(`Successfully logged in`, {
           position: "top-center",
         })
-        setTimeout(() => {
-          router.push("/dashboard")
+        if(userRole == 'User')
+        {
+           setTimeout(() => {
+          router.push("/homepage")
         }, 1000);
+
+        }
+        else if(userRole == 'Admin')
+        {
+          setTimeout(() => {
+            router.push("/dashboard")
+          }, 1000);
+  
+        }        
+  
       }
       const errors = loginresponse.data.login.errors;
       if(errors) {
@@ -102,7 +115,7 @@ export default function LogIn() {
       const token = loginresponse.data.login.token
       console.log(token, "here is the login page token")
       if(token) {
-        setCookie('tokken', token, {
+        setCookie('token', token, {
           path: '/',
         });
         console.log("Here is the token", token)

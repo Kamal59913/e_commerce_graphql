@@ -43,7 +43,8 @@ export type AddUsersTypeInput = {
 
 export type AuthPayload = {
   __typename?: 'AuthPayload';
-  message?: Maybe<Scalars['String']['output']>;
+  errors?: Maybe<Array<Maybe<Error>>>;
+  success?: Maybe<Scalars['Boolean']['output']>;
   token?: Maybe<Scalars['String']['output']>;
   user?: Maybe<LoggedInUserResponseType>;
 };
@@ -94,9 +95,10 @@ export type LoggedInUserResponseType = {
   __typename?: 'LoggedInUserResponseType';
   account_status: Scalars['String']['output'];
   email: Scalars['String']['output'];
+  fullname?: Maybe<Scalars['String']['output']>;
+  is_verified: Scalars['Boolean']['output'];
   role: Scalars['String']['output'];
   two_factor_enabled: Scalars['Boolean']['output'];
-  username?: Maybe<Scalars['String']['output']>;
 };
 
 export type LoginUserType = {
@@ -106,13 +108,8 @@ export type LoginUserType = {
 
 export type MeQueryReturnType = {
   __typename?: 'MeQueryReturnType';
-  account_status?: Maybe<Scalars['String']['output']>;
-  email?: Maybe<Scalars['String']['output']>;
-  fullname?: Maybe<Scalars['String']['output']>;
-  is_verified?: Maybe<Scalars['Boolean']['output']>;
-  password?: Maybe<Scalars['String']['output']>;
-  role?: Maybe<Scalars['String']['output']>;
-  two_factor_enabled?: Maybe<Scalars['Boolean']['output']>;
+  errors?: Maybe<Array<Maybe<Error>>>;
+  user?: Maybe<User>;
 };
 
 export type OtpInputType = {
@@ -156,6 +153,16 @@ export type UpdateUserTypeInput = {
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type User = {
+  __typename?: 'User';
+  account_status?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  fullname?: Maybe<Scalars['String']['output']>;
+  is_verified?: Maybe<Scalars['Boolean']['output']>;
+  role?: Maybe<Scalars['String']['output']>;
+  username?: Maybe<Scalars['String']['output']>;
+};
+
 export type Mutation = {
   __typename?: 'mutation';
   addUser?: Maybe<AuthPayload>;
@@ -163,6 +170,8 @@ export type Mutation = {
   getUserEmailForVerification?: Maybe<ResponseType>;
   isVerified?: Maybe<ResponseType>;
   login?: Maybe<AuthPayload>;
+  resetPassword?: Maybe<ResponseType>;
+  resetPasswordMail?: Maybe<ResponseType>;
   updateAccountStatus?: Maybe<ResponseType>;
   updateUserRole?: Maybe<ResponseType>;
   updateUserSettingsForm?: Maybe<ResponseType>;
@@ -190,6 +199,16 @@ export type MutationLoginArgs = {
 };
 
 
+export type MutationResetPasswordArgs = {
+  input?: InputMaybe<ResetPasswordType>;
+};
+
+
+export type MutationResetPasswordMailArgs = {
+  input?: InputMaybe<OtpInputType>;
+};
+
+
 export type MutationUpdateAccountStatusArgs = {
   input?: InputMaybe<UpdateUserImage>;
 };
@@ -214,22 +233,32 @@ export type Query = {
   ME?: Maybe<MeQueryReturnType>;
 };
 
+export type ResetPasswordType = {
+  confirm_password: Scalars['String']['input'];
+  new_password: Scalars['String']['input'];
+};
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'query', ME?: { __typename?: 'MeQueryReturnType', fullname?: string | null, email?: string | null, password?: string | null, two_factor_enabled?: boolean | null, account_status?: string | null, role?: string | null, is_verified?: boolean | null } | null };
+export type MeQuery = { __typename?: 'query', ME?: { __typename?: 'MeQueryReturnType', user?: { __typename?: 'User', fullname?: string | null, username?: string | null, email?: string | null, role?: string | null, account_status?: string | null, is_verified?: boolean | null } | null, errors?: Array<{ __typename?: 'Error', message?: string | null, code?: string | null } | null> | null } | null };
 
 
 export const MeDocument = gql`
     query ME {
   ME {
-    fullname
-    email
-    password
-    two_factor_enabled
-    account_status
-    role
-    is_verified
+    user {
+      fullname
+      username
+      email
+      role
+      account_status
+      is_verified
+    }
+    errors {
+      message
+      code
+    }
   }
 }
     `;

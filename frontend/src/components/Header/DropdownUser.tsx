@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSelector } from "react-redux";
+import { deleteCookie } from "cookies-next";
 
 const DropdownUser = () => {
   const meData = useSelector((state: { meData: any}) => state.meData)
@@ -11,6 +12,10 @@ const DropdownUser = () => {
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
+
+  const logout = () => {
+    deleteCookie('token')
+  }
 
   // close on click outside
   useEffect(() => {
@@ -165,7 +170,9 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
-        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+        onClick={logout}
+        >
           <svg
             className="fill-current"
             width="22"

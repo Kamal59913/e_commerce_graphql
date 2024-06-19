@@ -24,11 +24,14 @@ const OtpVerification: React.FC = () => {
 
   useEffect(()=> {
     if(iseVerified) {
-        redirect('/dashboard')
+        redirect('/homepage')
     }
   },[iseVerified, router])
   const meData = useSelector((state: { meData: any}) => state.meData)
-  console.log(meData, "Here is the user's data")
+
+
+
+  console.log(meData?.ME.user.email, "Here is the user's data")
   const [otp, setOtp] = useState('');
   const [email, setEmail] = useState();
   const {
@@ -51,7 +54,7 @@ const OtpVerification: React.FC = () => {
     const OtpVerificationResponse = await VerifyOtp({
         variables: {
           input: {
-            email: meData?.ME?.email,
+            email: meData?.ME.user.email,
             otp: formData.otp ? formData.otp : null 
           }
         }
@@ -97,7 +100,7 @@ console.log(iseVerified, "has verified or not")
             </p>
 
           <p className="mt-2 text-sm text-gray-600">
-            An OTP has been sent to <strong>{meData && meData.ME.email}.  </strong>
+            An OTP has been sent to <strong>{meData && meData?.ME.user.email}.  </strong>
           </p>
 
           <form action="#" method="POST" className="mt-6" onSubmit={handleSubmit(onSubmit)}>

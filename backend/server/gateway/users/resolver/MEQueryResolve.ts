@@ -16,13 +16,8 @@ const MEQueryResolver = async (parents: unknown, args, context) => {
     if (!id) return;
     const user = await userModel.findOne({ _id: id });
     return {
-      fullname: user.fullname,
-      email: user.email,
-      password: user.password,
-      two_factor_enabled: user.two_factor_enabled,
-      account_status: user.account_status,
-      role: user.role,
-      is_verified: user.is_verified
+      user: user,
+      errors: null
     };
 
   } catch (e) {

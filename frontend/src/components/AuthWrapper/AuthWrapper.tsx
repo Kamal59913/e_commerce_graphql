@@ -4,6 +4,7 @@ import { useMeQuery } from "@/graphql/generated/schema";
 import { useDispatch } from "react-redux";
 import { setMeData } from "@/redux/slices/meData";
 
+
 interface EnrichedChildren {
   children?: React.ReactNode;
 }function recursiveMap(
@@ -42,30 +43,39 @@ const Auth: React.FunctionComponent<IAuth> = ({
   const { data, loading, error } = useMeQuery({
     fetchPolicy: "network-only",
   });
-  console.log('data',data)
+
+  
+  
   const router = useRouter();
   const dispatch = useDispatch();
 
-
   const authuser = data?.ME;
-  console.log(authuser, "auth userrrr")
 
-  if(authuser) {
-    console.log(authuser.role)
-  }
+  useEffect(()=> {
+    if(data) {
+      if(data.ME?.errors) {
+        router.push('/')
+      }
+    }
+  }, [data, router])
+
+
+
   useEffect(() => {
     if (data) {
       dispatch(setMeData(data));
     }
   }, [data]);
 
+
   useEffect(() => {
-    if (!loading && !error) {
-      if (!authuser && !isPublic) {
+    if(!loading) {
+    if (error || !data?.ME) {
         router.push("/");
       }
     }
-  }, [authuser, loading, error, isPublic, router]);
+    }
+  , [error, data, router]);
 
 
 

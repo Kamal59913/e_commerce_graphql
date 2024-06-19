@@ -1,15 +1,16 @@
-import { GraphQLBoolean, GraphQLInt, GraphQLNonNull, GraphQLObjectType, GraphQLString } from "graphql";
+import { GraphQLBoolean, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString } from "graphql";
 import { LocationType } from "@/db/models/users_types/users_types";
+import Error from "@/gateway/types/ErrorType";
+import User from "./User";
 
 export const ME_QUERY_RETURN_TYPE = new GraphQLObjectType({
     name: 'MeQueryReturnType',
-    fields: {
-      fullname: {type: GraphQLString},
-      email: {type: GraphQLString},
-      password: {type: GraphQLString},
-      two_factor_enabled: {type: GraphQLBoolean},
-      account_status: {type: GraphQLString},
-      role: {type: GraphQLString},
-      is_verified: {type: GraphQLBoolean},
-    }
-  })
+    fields: () => ({
+      user: {
+        type: User,
+      },
+      errors: {
+        type: new GraphQLList(Error),
+      },
+    }),
+  });

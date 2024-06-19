@@ -1,11 +1,16 @@
 query ME {
   ME {
-    fullname
-    email
-    password
-    two_factor_enabled
-    account_status
-    role
-    is_verified
+    user {
+      fullname
+      username
+      email
+      role
+      account_status
+      is_verified
+    }
+    errors {
+      message
+      code
+    }
   }
 }

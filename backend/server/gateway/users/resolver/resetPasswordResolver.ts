@@ -3,7 +3,10 @@ import userModel from "@/db/models/users_model/users.model";
 
 const resetPasswordResolver = async (parents: unknown, args, context) => {
   const { new_password, confirm_password } = args.input;
+  console.log(new_password, "new_password")
+  console.log(confirm_password, "confirm password")
 
+  console.log(context, "here is the context")
   try {
     if (context?.user?.error) {
       return {
