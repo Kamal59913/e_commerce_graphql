@@ -53,17 +53,20 @@ const PasswordReset: React.FC = () => {
             console.log(error)
             if(error.code == 'UNAUTHORIZED_USER') {
               toast.error("The user is not authorized", {
-                position: "top-center"
+                position: "top-center",
+                toastId: "randomId"
               })
             } 
             else if(error.code == 'BAD_USER_INPUT') {
               toast.error("User not found", {
-                position: "top-center"
+                position: "top-center",
+                toastId: "randomId"
               })
             }
             else if(error.code == 'PASSWORD_NOT_MATCH') {
               toast.error("Passwords do not match", {
-                position: "top-center"
+                position: "top-center",
+                toastId: "randomId"
               })
             }
           })
@@ -73,6 +76,7 @@ const PasswordReset: React.FC = () => {
       if(PasswordResetresponse.data.resetPassword.success == true) {
           toast.success(`Password has successfully been reset`, {
             position: "top-center",
+            toastId: "randomId"
           })
           setTimeout(() => {
             router.push("/login")

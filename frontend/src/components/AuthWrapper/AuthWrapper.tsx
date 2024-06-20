@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useMeQuery } from "@/graphql/generated/schema";
 import { useDispatch } from "react-redux";
 import { setMeData } from "@/redux/slices/meData";
-
+import Loader from "../Loaders/Loader";
 
 interface EnrichedChildren {
   children?: React.ReactNode;
@@ -80,7 +80,7 @@ const Auth: React.FunctionComponent<IAuth> = ({
 
 
   if (loading) {
-    return <p> Loading ...</p>;
+    return <Loader/>;
   }
 
   if (error) {
@@ -104,3 +104,6 @@ const Auth: React.FunctionComponent<IAuth> = ({
 };
 
 export default Auth;
+
+
+

@@ -12,23 +12,42 @@ import { useEffect, useState } from "react";
 import { useMeQuery } from "@/graphql/generated/schema";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-
+import Loader from "../Loaders/Loader";
+import { truncateSync } from "fs";
 
 export default function LogIn() {
   const router = useRouter();
-  const [isAuthenticated, serIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [email, setEmail] = useState('');
-  const { data: userData } = useMeQuery({
+
+  const { data: userData, loading: queryLoading } = useMeQuery({
     fetchPolicy: "network-only",
+    onCompleted: () => {
+      setIsLoading(false);
+    }, 
+    onError: () => {
+      setIsLoading(false)
+    },
   });
 
-  // const authuser = userData?.ME?.is_verified
-  // console.log(authuser, "authuser")
-  // useEffect(()=> {
-  //   if(authuser == true) {
-  //     redirect('/dashboard')
-  //   }
-  // }, [authuser])
+  const authuser = userData?.ME?.user
+
+  useEffect(() => {
+    if (authuser) {
+      if (authuser.is_verified) {
+        if (authuser.role === 'Admin') {
+          router.replace('/dashboard');
+        } else if (authuser.role === 'User') {
+          router.replace('/homepage');
+        }
+      } else {
+        // User is not verified, stay on login page
+        setIsLoading(false);
+      }
+    } else {
+      setIsLoading(false);
+    }
+  }, [authuser, router]);
 
   const {
     handleSubmit,
@@ -62,6 +81,7 @@ export default function LogIn() {
         const userRole = loginresponse.data.login.user.role
         toast.success(`Successfully logged in`, {
           position: "top-center",
+          toastId: "randomId"
         })
         if(userRole == 'User')
         {
@@ -88,12 +108,14 @@ export default function LogIn() {
                   toast.warning(`Please verify your email, A verification Link has been sent.`, {
                     position: "top-center",
                     autoClose: 10000,
+                    toastId: "randomId"
                   })
                 } else if(error.code == 'INVALID_CREDENTIALS') {
                   console.log(email, 'email')
                   toast.error(`Wrong Password.`, {
                     position: "top-center",
                     autoClose: 10000,
+                    toastId: "randomId"
                   })
                 } 
                 else if(error.code == 'USER_NOT_FOUND') {
@@ -101,6 +123,7 @@ export default function LogIn() {
                   toast.error(`User with this email does not exist.`, {
                     position: "top-center",
                     autoClose: 10000,
+                    toastId: "randomId"
                   })
                 } 
             });
@@ -124,6 +147,17 @@ export default function LogIn() {
       console.log(e);
     }
   }
+
+  if (isLoading) {
+    return <Loader />;
+  }
+  if(queryLoading) {
+    return <Loader/>
+  }
+  if(authuser?.is_verified) {
+    return <Loader/>
+  }
+
 
   return (
     <section className='h-screen'>

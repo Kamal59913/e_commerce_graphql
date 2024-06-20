@@ -1,28 +1,30 @@
 import CategoryModel from "@/db/models/categories_model/categories.model";
 
 const CreateCategoryResolver = async (parent, args, context) => {
+  console.log("reached here here in Create Category REsolver")
   try {
-    const {category_name, category_description, is_available, is_parent, parent} = args.input;
+    const {category_name} = args.input;
 
     /*check if username or email already exists in the database*/
-   const errors = [];
-
 
    const category_name_exists = await CategoryModel.findOne({category_name})
 
    if(category_name_exists) {
-    errors.push({ message: "A category with this name already exists", code: "CATEGORY_ALRLEADY_EXISTS"});
-    }
-
-    if(errors.length > 0) {
-        return { errors }
-    }
-
+    return {
+      errors: [
+        {
+          message: 'A category with this name already exists',
+          code: 'CATEGORY_EXISTS',
+        },
+      ],
+    };
+  }
+  
 
     const created_category = new CategoryModel(
       { 
-        category_name, category_description, is_available, is_parent, parent
-        },
+        ...args.input
+      },
     );
 
     await created_category.save();
@@ -33,7 +35,6 @@ const CreateCategoryResolver = async (parent, args, context) => {
 
     return {
         success: true,
-        message: "Category Added Successfully",
         user: created_category
        }  
     

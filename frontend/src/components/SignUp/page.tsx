@@ -11,15 +11,47 @@ import { schema } from "./SchemaValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormValues } from "./types";
 import { redirect, useRouter } from "next/navigation";
-import { ErrorObject } from "./types/Error_Object";
+import { useMeQuery } from "@/graphql/generated/schema";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import Loader from "../Loaders/Loader";
+import OtpVerification from "../otp-page/otp_verification";
 
 export default function Signup() {
   const router = useRouter();
-
+  const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, serIsAuthenticated] = useState(false);
+
+  const { data: userData } = useMeQuery({
+    fetchPolicy: "network-only",
+    onCompleted: () => {
+      setIsLoading(false);
+    }, 
+    onError: () => {
+      setIsLoading(false)
+    },
+  });
+
+  const authuser = userData?.ME?.user
+
+  useEffect(() => {
+    if (authuser) {
+      if (authuser.is_verified) {
+        if (authuser.role === 'Admin') {
+          router.replace('/dashboard');
+        } else if (authuser.role === 'User') {
+          router.replace('/homepage');
+        }
+      } else {
+        // User is not verified, stay on login page
+        router.push('/login');
+      }
+    } else {
+      setIsLoading(false);
+    }
+  }, [authuser, router]);
+
+
 
   useEffect(() => {
     if(isAuthenticated) {
@@ -29,14 +61,6 @@ export default function Signup() {
     }
 }, [isAuthenticated, router])
 
-
-  const notify = () => {
-    toast.warning("Email Already Exists !", {
-      position: "top-center"
-    });
-
-  };
-     
 
   const {
     handleSubmit,
@@ -75,7 +99,8 @@ export default function Signup() {
         
         if(signupresponse.data.addUser.success == true) {
           toast.success("Successfully Signed Up", {
-            position: "top-center"
+            position: "top-center",
+            toastId: "randomId"
           })
         }
         const errors= signupresponse.data.addUser.errors;
@@ -94,7 +119,8 @@ export default function Signup() {
             errors.map((num: any, index: any) => {
                 if(num.code == "INVALID_EMAIL") {
                   toast.error(num.message, {
-                    position: "top-center"
+                    position: "top-center",
+                    toastId: 'randomId'
                   });
                 } 
             })
@@ -111,6 +137,16 @@ export default function Signup() {
       setpasswordStrength(strenth)
   }
 
+  if(isLoading) {
+    return <Loader/>
+  }
+
+
+  if(authuser) {
+    return <Loader/>
+  }
+
+  
   return (
     <section>
       <ToastContainer/>

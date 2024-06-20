@@ -3,8 +3,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 import { deleteCookie } from "cookies-next";
+import { redirect, useRouter } from "next/navigation";
 
 const DropdownUser = () => {
+  const router = useRouter()
+  const [Isauthenticated, setIsAuthenticated] = useState(true);
   const meData = useSelector((state: { meData: any}) => state.meData)
 
 
@@ -13,8 +16,20 @@ const DropdownUser = () => {
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
 
+  const toggleAuthentication = () => {
+    Isauthenticated? setIsAuthenticated(false) : setIsAuthenticated(true)
+  }
+
+  useEffect(()=> {
+    if(Isauthenticated == false) {
+      redirect('/login')
+    }
+  },[Isauthenticated])
+
+
   const logout = () => {
     deleteCookie('token')
+    toggleAuthentication()
   }
 
   // close on click outside

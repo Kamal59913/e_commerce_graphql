@@ -50,10 +50,14 @@ const {
             }
         }
       });
+
       if(mailsent.data.getUserEmailForVerification.success) {
           toast.success("Email Sent", {
-            position: "top-center"
-          })
+            position: "top-center",
+            toastId: "RandomId"
+          },
+    
+        )
       }
   }
 

@@ -1,52 +1,108 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import SwitcherThree from "@/components/Switchers/SwitcherThree";
-import SelectGroupTwo from "@/components/SelectGroup/SelectGroupTwo";
-import SelectCategory from "../SelectGroup/SelectCategory";
-import SwitcherIsAvailable from "../Switchers/SwitcherIsAvailable";
 import SelectParent from "../SelectGroup/SelectParent";
 import { formSchema } from "./SchemaValidation";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import CREATE_CATEGORY from "../../graphql/mutations/CREATE_CATEGORY.graphql"
+import { useMutation } from "@apollo/client";
+import { FormValues } from "./types";
+
+import { CldUploadWidget } from 'next-cloudinary';
+
 
 
 const AddCategory = () => {
 
-  const [enabled, setEnabled] = useState(false);
-  
+  const image_cloudinary_cloud_name = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+  const [enabledIsAvailable, setenabledIsAvailable] = useState(false);
   const [enabledIsParent, setenabledIsParent] = useState(false);
 
   const {
     handleSubmit,
     reset,
     register,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
       category_name: "",
       category_description: "",
-      category_image: "",
-      isparent: false,
-      isavailable: false,
-      parent_category: ""
     },
     mode: "onChange",
     reValidateMode: "onChange",
     resolver: yupResolver(formSchema),
   });
 
+  useEffect(() => {
+    setValue("isparent", enabledIsParent);
+    setValue("isavailable", enabledIsAvailable);
+  }, [enabledIsParent, enabledIsAvailable, setValue]);
+
+  const [createCategory, { data, loading, error }] = useMutation(CREATE_CATEGORY);
+
+  const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    console.log("Here we reached", values)
+    try {
+      const submitResponse = await createCategory({
+        variables: {
+          input:
+          {
+            category_name: values.category_name,
+            category_description: values.category_description,
+            // category_image: values.category_image,
+            is_available: enabledIsParent,
+            is_parent: enabledIsAvailable,
+          }
+        }
+      })
+      console.log(submitResponse.data.addCategory
+        , "new response"
+      )
+
+      if(submitResponse.data.addCategory.success == true) {
+        console.log("it is success here")
+        toast.success("Successfully added category", {
+          position: "top-center",
+          toastId: "randomid"
+        })
+      }
+
+      const errors = submitResponse.data.addCategory.errors;
+      if(errors) {
+        if(errors.length>0) {
+          errors.map((num: any, index: any) => {
+              if(num.code == "CATEGORY_EXISTS") {
+                toast.error(num.message, {
+                  position: "top-center",
+                  toastId: 'randomId2'
+                });
+              } 
+          })
+        } 
+      } 
+
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+
+
+
   return (
     <>
+    <ToastContainer/>
       <Breadcrumb pageName="Add a Category" />
-
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 mb-20">
         <div className="flex flex-col gap-9">
           {/* <!-- Input Fields --> */}
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-            <form className="flex flex-col gap-5.5 p-6.5">
+            <form className="flex flex-col gap-5.5 p-6.5" onSubmit={handleSubmit(onSubmit)}>
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Category Name
@@ -78,9 +134,22 @@ const AddCategory = () => {
                     <p className='text-[#FF5733] text-xs  pt-2'>
                     {errors.category_description.message}
                     </p>
-                  )}              </div>
+                  )}              
+              </div>
+              <CldUploadWidget uploadPreset="cloudinary_image_upload">
+  {({ open, results }) => {
+    console.log("here is the result", results)
+    return (
+      <button onClick={(e) => {
+        e.preventDefault()
+        open()}}>
+        Upload an Image
+      </button>
+    );
+  }}
+</CldUploadWidget>
       
-              <div>
+              {/* <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Insert Category Image
                 </label>
@@ -90,13 +159,13 @@ const AddCategory = () => {
                   {...register('category_image')} // Register the 'first_name' field here
 
                 />
-              </div>
+              </div> */}
 
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Is Parent                  
                 </label>
-                <div>
+              <div>
       <label
         htmlFor="toggle3"
         className="flex cursor-pointer select-none items-center"
@@ -109,6 +178,7 @@ const AddCategory = () => {
             onChange={() => {
               setenabledIsParent(!enabledIsParent);
             }}
+            checked = {enabledIsParent  }
           />
           <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
           <div
@@ -169,16 +239,17 @@ const AddCategory = () => {
             id="toggle4"
             className="sr-only"
             onChange={() => {
-              setEnabled(!enabled);
+              setenabledIsAvailable(!enabledIsAvailable);
             }}
+            checked={enabledIsAvailable}
           />
           <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
           <div
             className={`dot absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white transition ${
-              enabled && "!right-1 !translate-x-full !bg-primary dark:!bg-white"
+              enabledIsAvailable && "!right-1 !translate-x-full !bg-primary dark:!bg-white"
             }`}
           >
-            <span className={`hidden ${enabled && "!block"}`}>
+            <span className={`hidden ${enabledIsAvailable && "!block"}`}>
               <svg
                 className="fill-white dark:fill-black"
                 width="11"
@@ -195,7 +266,7 @@ const AddCategory = () => {
                 ></path>
               </svg>
             </span>
-            <span className={`${enabled && "hidden"}`}>
+            <span className={`${enabledIsAvailable && "hidden"}`}>
               <svg
                 className="h-4 w-4 stroke-current"
                 fill="none"
@@ -215,12 +286,10 @@ const AddCategory = () => {
       </label>
     </div>              
     </div>
-  <SelectParent/>      
-    <button
-                    type="submit"
-                    className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 w-64 md:w-400"
-                  >
-                    Save
+  {/* <SelectParent/>       */}
+    <button type="submit"
+            className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 w-64 md:w-400">
+      Save
     </button>
             </form>
           </div>

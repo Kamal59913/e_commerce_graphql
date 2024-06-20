@@ -24,7 +24,7 @@ const CategorySchema = new Schema<Category>({
   },
   is_parent: {
     type: Boolean,
-    required: false,
+    required: true,
     default: true
   },
   parent: {

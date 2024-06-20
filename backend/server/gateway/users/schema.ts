@@ -12,8 +12,6 @@ import { UpdateUserAccountStatusInputType } from "./types/UpdateUserAccountStatu
 import UpdateAccountStatusResolver from "./resolver/toUpdateAccountStatusResolver"
 import UpdateUserRoleResolver from "./resolver/toUpdateUserRoleResolver"
 import { UpdateUserRoleInputType } from "./types/UpdateUserRoleInputType"
-import { CategoryResponseType } from "./types/CATEGORY_RESPONSE_TYPE"
-import CreateCategoryResolver from "./resolver/CreateCategoryResolver"
 import { CategoryInputType } from "./types/CATEGORY_INPUT_TYPE"
 import { ME_QUERY_RETURN_TYPE } from "./types/ME_QUERY_USER_RETURN_TYPE"
 import { UserType } from "./types/UsersType"
@@ -86,16 +84,6 @@ export const usersMutation = {
             }
         },
         resolve: loginResolver
-    },
-
-    createCategory: {
-        type: CategoryResponseType,
-        args: {
-            input: {
-                type: CategoryInputType
-            }
-        },
-        resolve: CreateCategoryResolver
     },
 
     getUserEmailForVerification: {

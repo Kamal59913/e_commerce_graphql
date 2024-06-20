@@ -1,0 +1,9 @@
+mutation Mutation($input: CategoryInputType) {
+  addCategory(input: $input) {
+    success
+    errors {
+      message
+      code
+    }
+  }
+}

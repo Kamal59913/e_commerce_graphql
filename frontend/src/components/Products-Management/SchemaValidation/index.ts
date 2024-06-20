@@ -11,9 +11,7 @@ export const formSchema = Yup.object().shape({
     .min(10, 'Category description must be at least 10 characters long')
     .max(500, 'Category description must be less than 500 characters'),
   
-  category_image: Yup.string()
-    .required('Category image URL is required')
-    .url('Invalid URL format'),
+  // category_image: Yup.string(),
 
   isparent: Yup.boolean()
     .default(false)
@@ -23,12 +21,6 @@ export const formSchema = Yup.object().shape({
     .default(false)
     .required('isavailable is required'),
 
-  parent_category: Yup.string()
-    .default('NOT_NULL')
-    .nullable()
-    .when('isparent', {
-      is: false,
-      then: schema => schema.required('Parent category is required when not a parent category'),
-      otherwise: schema => schema.nullable()
-    })
+  // parent_category: Yup.string()
+  
 });

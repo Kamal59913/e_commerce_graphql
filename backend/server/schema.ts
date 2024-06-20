@@ -1,5 +1,6 @@
 import { GraphQLObjectType, GraphQLSchema } from "graphql";
 import { userQuery, usersMutation } from "./gateway/users/schema";
+import { categoryMutation } from "./gateway/categories/schema";
 
 const query = new GraphQLObjectType({
   name: "query",
@@ -11,7 +12,8 @@ const query = new GraphQLObjectType({
 const mutation = new GraphQLObjectType({
   name: "mutation",
   fields: () => ({
-    ... usersMutation
+    ... usersMutation,
+    ... categoryMutation
   })
 })
 
