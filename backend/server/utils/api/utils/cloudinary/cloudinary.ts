@@ -35,4 +35,24 @@ const uploadOnCloudinary = async (localFilePath) => {
 
 
 
-export {uploadOnCloudinary}
+//  const deleteImage = async (url: string) => {   
+
+//     if(url) {
+//         const itsit = await cloudinary.uploader.destroy.toString()
+//         console.log(itsit, "here it is")
+//         console.log("process.env.CLOUDINARY_API_KEY", process.env.CLOUDINARY_API_KEY)
+//         console.log(url, "reached on deleteImage")
+//         const result = await cloudinary.uploader.destroy(`/${url}`)
+//         .then(result => 
+//             {
+//                 console.log("result", result)
+//             })
+//             .catch((err) => {
+//                 console.log(err, "Here is the error")
+//             })
+    
+//             console.log(result, "Here is the result")
+//         }
+//     }
+
+export {uploadOnCloudinary, cloudinary}

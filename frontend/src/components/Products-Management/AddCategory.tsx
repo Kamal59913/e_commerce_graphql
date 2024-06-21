@@ -10,9 +10,14 @@ import { useEffect, useState } from "react";
 import CREATE_CATEGORY from "../../graphql/mutations/CREATE_CATEGORY.graphql"
 import { useMutation } from "@apollo/client";
 import { FormValues } from "./types";
-
 import { CldUploadWidget } from 'next-cloudinary';
+import DELETE_IMAGE from '../../graphql/mutations/DELETE_CLOUDINARY.graphql'
 
+interface CloudinaryUploadWidgetInfo {
+  url: string;
+  display_name?: string;
+  public_id?: string
+}
 
 
 const AddCategory = () => {
@@ -21,12 +26,28 @@ const AddCategory = () => {
 
   const [enabledIsAvailable, setenabledIsAvailable] = useState(false);
   const [enabledIsParent, setenabledIsParent] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | CloudinaryUploadWidgetInfo>('');
+  const [displayName, setDisplayName] = useState<string>('');
+  /*image upload only possible it name and description has been written*/
+  const [isImgEligible, setisImgEligible] = useState(false);
+  const [publicId, setPublicId] = useState<string>('');
+
+  useEffect(()=> {
+    if (imageUrl!= '') {
+      toast.success("Image has been uploaded successfully", {
+        position: "top-center",
+        toastId: "randomIdImageUpload"
+      })
+    }
+  }, [imageUrl])
+
 
   const {
     handleSubmit,
     reset,
     register,
     setValue,
+    trigger,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -92,6 +113,28 @@ const AddCategory = () => {
   }
 
 
+  /*Delete Image*/
+  const [deleteImageGrapqhl] = useMutation(DELETE_IMAGE);
+
+
+  const deleteImage = async (url: string) => {
+    if(publicId != '') {
+    const deleteImageResponse = await deleteImageGrapqhl({
+      variables : {
+        input: 
+        {
+          public_id: url
+        }
+      }
+    }) 
+      if(deleteImageResponse.data.deleteImage.success == true) {
+          toast.success("Successfully deleted the image", {
+            position: "top-center",
+            toastId: "randomId"
+          })
+      }
+  }
+  }
 
 
   return (
@@ -136,18 +179,55 @@ const AddCategory = () => {
                     </p>
                   )}              
               </div>
+              <div className="flex">
               <CldUploadWidget uploadPreset="cloudinary_image_upload">
-  {({ open, results }) => {
-    console.log("here is the result", results)
-    return (
-      <button onClick={(e) => {
-        e.preventDefault()
-        open()}}>
-        Upload an Image
-      </button>
-    );
-  }}
-</CldUploadWidget>
+                    {({ open, results }) => {
+                      console.log(results, "here is the results")
+                      useEffect(() => {
+                        if (results?.info && typeof results.info !== 'string') {
+                          const info = results.info as CloudinaryUploadWidgetInfo;
+                          setImageUrl(info.url);
+                          setDisplayName(info.display_name ?? '');
+                          setPublicId(info.public_id ?? '')
+                        }
+                      }, [results]);
+    
+                    
+                    return (
+                        <button className=
+                        "w-40 text-black border border-slate-600 bg-white hover:bg-[#f0f0f0] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white focus:outline-none dark:focus:ring-blue-800" 
+                        
+                        onClick={async (e) => 
+                          {
+                          e.preventDefault()
+                          setisImgEligible(true)
+                          const valid = await trigger(["category_name", "category_description"]);
+                          if(valid) {
+                            open()  
+                          } else {
+                            toast.error("Please fill out the category name and description before uploading an image", {
+                              position: "top-center",
+                              toastId: "randomIdFormValidation"
+                            });                          
+                            }}} >
+                              Upload Image
+                        </button>
+                    )
+                  }
+                }
+              </CldUploadWidget> 
+              <span className="ml-4 mt-2">{imageUrl && 
+                <> Uploaded the image <span className="font-bold italic text-md">{displayName}</span> 
+                <button 
+                onClick={(e)=> {
+                e.preventDefault()
+                deleteImage(publicId)}}
+                className="w-10 ml-10 text-black border border-slate-600 bg-white hover:bg-[#f0f0f0] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white focus:outline-none dark:focus:ring-blue-800"> 
+               X
+               </button>
+                </>} 
+                </span>
+              </div>    
       
               {/* <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
@@ -177,8 +257,9 @@ const AddCategory = () => {
             className="sr-only"
             onChange={() => {
               setenabledIsParent(!enabledIsParent);
+              trigger(["category_name", "category_description"]);
             }}
-            checked = {enabledIsParent  }
+            checked = {enabledIsParent}
           />
           <div className="block h-8 w-14 rounded-full bg-meta-9 dark:bg-[#5A616B]"></div>
           <div
@@ -240,6 +321,7 @@ const AddCategory = () => {
             className="sr-only"
             onChange={() => {
               setenabledIsAvailable(!enabledIsAvailable);
+              trigger(["category_name", "category_description"]);
             }}
             checked={enabledIsAvailable}
           />

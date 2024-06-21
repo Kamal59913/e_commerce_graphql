@@ -1,0 +1,9 @@
+mutation DeleteImage($input: CloudinaryInput) {
+  deleteImage(input: $input) {
+    success
+    errors {
+      message
+      code
+    }
+  }
+}

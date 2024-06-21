@@ -21,6 +21,7 @@
     "apexcharts": "^3.45.2",
     "axios": "^1.7.2",
     "check-password-strength": "^2.0.10",
+    "cloudinary": "^2.2.0",
     "cookies-next": "^4.2.1",
     "flatpickr": "^4.6.13",
     "graphql": "^16.8.1",
