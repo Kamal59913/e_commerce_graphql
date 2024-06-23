@@ -1,4 +1,4 @@
-mutation Mutation($input: CategoryInputType) {
+mutation AddCategory($input: CategoryInputType) {
   addCategory(input: $input) {
     success
     errors {
