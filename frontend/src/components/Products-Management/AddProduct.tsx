@@ -59,6 +59,8 @@ const AddCategory = () => {
       stock_quantity: 0,
       product_price: 0,
       currency: 'INR',
+      weight: 0,
+      dimensions: ''
     },
     mode: "onChange",
     reValidateMode: "onChange",
@@ -91,7 +93,8 @@ const AddCategory = () => {
             product_price: values.product_price,
             currency: values.currency,
             isActive: values.isActive,
-            product_images: imageUrls
+            product_images: imageUrls,
+            weight: values.weight
           }
         }
       })
@@ -255,8 +258,9 @@ const AddCategory = () => {
                 }
               </CldUploadWidget> 
               </div>  
-<div className="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
-  {imageUrls.length>0 && 
+  {imageUrls.length>0 && (
+    <div className="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
+  {
     imageUrls.map((image, index) => (
       <div key={index} className="relative overflow-hidden rounded-md aspect-w-8 aspect-h-6 md:aspect-w-3 md:aspect-h-6 lg:aspect-w-20 lg:aspect-h-12 xl:aspect-h-18">
         <img
@@ -275,11 +279,10 @@ const AddCategory = () => {
           /> 
       </div>
     ))
+  }  </div>
+
+  )
   }
-</div>
-
-
-               
               {imagerequiredtoggle && (
                     <p className='text-[#FF5733] text-xs  pt-2'>
                      Unnable to add Product without images
@@ -326,6 +329,110 @@ const AddCategory = () => {
                     </p>
                   )}
               </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  Weight
+                </label>
+                <input
+                  type="text"
+                  placeholder="Product Name"
+                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  {...register('weight')} // Register the 'first_name' field here
+                  onChange={(e) => {
+                    trigger(["product_name", "product_description", "stock_quantity"]);
+                  }}
+               />
+                    {errors.weight && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    {errors.weight.message}
+                    </p>
+                  )}
+              </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  Dimensions
+                </label>
+                <input
+                  type="text"
+                  placeholder="Dimensions"
+                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  {...register('dimensions')} // Register the 'first_name' field here
+                  onChange={(e) => {
+                    trigger(["product_name", "product_description", "stock_quantity"]);
+                  }}
+               />
+                    {errors.dimensions && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    {errors.dimensions.message}
+                    </p>
+                  )}
+              </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  Material
+                </label>
+                <input
+                  type="text"
+                  placeholder="Material"
+                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  {...register('material')} // Register the 'first_name' field here
+                  onChange={(e) => {
+                    trigger(["product_name", "product_description", "stock_quantity"]);
+                  }}
+               />
+                    {errors.material && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    {errors.material.message}
+                    </p>
+                  )}
+              </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  Model Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="Model Number"
+                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  {...register('model_number')} // Register the 'first_name' field here
+                  onChange={(e) => {
+                    trigger(["product_name", "product_description", "stock_quantity"]);
+                  }}
+               />
+                    {errors.model_number && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    {errors.model_number.message}
+                    </p>
+                  )}
+              </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  Warranty Details
+                </label>
+                <input
+                  type="text"
+                  placeholder="Warrenty Details"
+                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  {...register('warranty')} // Register the 'first_name' field here
+                  onChange={(e) => {
+                    trigger(["product_name", "product_description", "stock_quantity"]);
+                  }}
+               />
+                    {errors.warranty && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    {errors.warranty.message}
+                    </p>
+                  )}
+              </div>
+
+
+  
+
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Is Active                  
@@ -387,7 +494,6 @@ const AddCategory = () => {
                 </div>
               </label>
             </div>
-  {/* <SelectParent/>       */}
     <button type="submit"
             className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 w-64 md:w-400">
       Save

@@ -6,6 +6,11 @@ export interface FormValues {
   currency: string;
   isActive: boolean;
   product_images?: ProductImage[];
+  weight?: number;
+  dimensions?: string;
+  material?: string;
+  model_number?: string;
+  warranty?: string
 };
 
 interface ProductImage {
