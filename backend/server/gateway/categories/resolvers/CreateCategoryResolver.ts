@@ -2,6 +2,7 @@ import CategoryModel from "@/db/models/categories_model/categories.model";
 
 const CreateCategoryResolver = async (parent, args, context) => {
   console.log("reached here here in Create Category REsolver")
+  console.log(context, "decoded token")
   try {
     const {category_name} = args.input;
 

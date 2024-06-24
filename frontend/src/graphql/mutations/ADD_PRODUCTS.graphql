@@ -1,0 +1,9 @@
+mutation AddProduct($input: ProductsInputType) {
+  addProduct(input: $input) {
+    errors {
+      message
+      code
+    }
+    success
+  }
+}

@@ -3,48 +3,50 @@ import { Schema, model } from 'mongoose';
 /*Needs to create category first then the admin can put the product inside a */
 export type Product = {
   /*15*/
-  name: string,
-  description: string,
-  stock_quantity: string,
-  price: number,
+  product_name: string,
+  product_description: string,
+  stock_quantity: number,
+  product_price: number,
   discount_price: number,
   currency: 'USD' | 'EUR' | 'INR' 
   isActive: boolean,
-  weight: string,
+  weight: number,
   dimensions: string,
   material: string,
   model_number: string,
   warranty: string,
-  isNew: boolean,
+  is_new: boolean,
   shipping_weight: string,
   shipping_dimensions: string,
+  product_category: Schema.Types.ObjectId,
+  product_images: { displayName: string; url: string; publicId: string }[];
 }
 
-const ProductSchema = new Schema<Product>({
-  name: {
+const ProductsSchema = new Schema<Product>({
+  product_name: {
     type: String,
     required: true,
   },
-  description: {
+  product_description: {
     type: String,
     required: true,
   },
   stock_quantity: {
-    type: String,
-    required: false,
-  },
-  price: {
     type: Number,
-    required: false
+    required: true,
+  },
+  product_price: {
+    type: Number,
+    required: true
   },
   discount_price: {
     type: Number,
-    required: true,
+    required: false,
   },
   currency: {
     type: String,
     enum: ['USD', 'EUR', 'INR'],
-    required: false,
+    required: true,
     default: 'INR'
   },
   isActive: {
@@ -53,7 +55,7 @@ const ProductSchema = new Schema<Product>({
       default: true
   },
   weight: {
-    type: String,
+    type: Number,
     required: false,
 },
   dimensions: {
@@ -72,9 +74,9 @@ const ProductSchema = new Schema<Product>({
     type: String,
     required: false,
   },
-  isNew: {
+  is_new: {
     type: Boolean,
-    required: false
+    default: true
   },
   shipping_weight: {
     type: String,
@@ -83,13 +85,29 @@ const ProductSchema = new Schema<Product>({
   shipping_dimensions: {
     type: String,
     required: false
-  }
+  },
+  product_category: {
+    type: Schema.Types.ObjectId,
+    ref: 'Category',
+    required: false,
+    default: null
+  },
+  product_images: {
+    type: [
+      {
+        displayName: { type: String, required: true },
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
+      },
+    ],    required: false,
+    default: [],
+},
 },
   {
     timestamps: true,
   });
 
 
-const ProductModel = model('Product', ProductSchema);
+const ProductsModel = model('Product', ProductsSchema);
 
-export default ProductModel;
+export default ProductsModel;

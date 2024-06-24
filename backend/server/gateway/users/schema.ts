@@ -12,7 +12,6 @@ import { UpdateUserAccountStatusInputType } from "./types/UpdateUserAccountStatu
 import UpdateAccountStatusResolver from "./resolver/toUpdateAccountStatusResolver"
 import UpdateUserRoleResolver from "./resolver/toUpdateUserRoleResolver"
 import { UpdateUserRoleInputType } from "./types/UpdateUserRoleInputType"
-import { CategoryInputType } from "./types/CATEGORY_INPUT_TYPE"
 import { ME_QUERY_RETURN_TYPE } from "./types/ME_QUERY_USER_RETURN_TYPE"
 import { UserType } from "./types/UsersType"
 import UsersList from "./types/UsersList"

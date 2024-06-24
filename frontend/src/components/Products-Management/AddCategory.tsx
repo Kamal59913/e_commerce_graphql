@@ -40,16 +40,6 @@ const AddCategory = () => {
 
   },[])
 
-  // useEffect(()=> {
-  //   if (imageUrl!= '') {
-  //     toast.success("Image has been uploaded successfully", {
-  //       position: "top-center",
-  //       toastId: "randomIdImageUpload"
-  //     })
-  //   }
-  // }, [imageUrl])
-
-
   const {
     handleSubmit,
     reset,
@@ -155,10 +145,6 @@ const AddCategory = () => {
     }) 
       if(deleteImageResponse.data.deleteImage.success == true) {
         localStorage.removeItem('public_id')
-          // toast.success("Successfully deleted the image", {
-          //   position: "top-center",
-          //   toastId: "randomId"
-          // })
       }
   }
   }

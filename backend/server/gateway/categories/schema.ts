@@ -4,6 +4,8 @@ import { CloudinaryInput } from "./types/CloudinaryInput";
 import ResponseType from "./types/ResponseType";
 import CreateCloudinaryResolver from "./resolvers/CreateCloudinaryResolver";
 
+
+
 export const categoryMutation = {
     addCategory: {
         type: ResponseType,
@@ -14,6 +16,7 @@ export const categoryMutation = {
         },
         resolve: CreateCategoryResolver
     },
+
     deleteImage : {
         type: ResponseType,
         args: {
@@ -22,7 +25,8 @@ export const categoryMutation = {
             }
         },
         resolve: CreateCloudinaryResolver
-    }
+    },
+
     // updateCategory: {
 
     // },
