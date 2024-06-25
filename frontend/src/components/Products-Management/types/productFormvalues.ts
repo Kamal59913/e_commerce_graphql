@@ -10,7 +10,7 @@ export interface FormValues {
   dimensions?: string;
   material?: string;
   model_number?: string;
-  warranty?: string
+  warranty?: string;
 };
 
 interface ProductImage {

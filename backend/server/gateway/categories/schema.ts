@@ -3,7 +3,15 @@ import { CategoryInputType } from "./types/CATEGORY_INPUT_TYPE";
 import { CloudinaryInput } from "./types/CloudinaryInput";
 import ResponseType from "./types/ResponseType";
 import CreateCloudinaryResolver from "./resolvers/CreateCloudinaryResolver";
+import getCategoryResolver from "./resolvers/getCategoryResolver";
+import getCategoryResponseType from "./types/getCategoryResponseType";
 
+export const getCategoryQuery = {
+    getCategory: {
+        type: getCategoryResponseType,
+        resolve: getCategoryResolver
+    }
+}
 
 
 export const categoryMutation = {

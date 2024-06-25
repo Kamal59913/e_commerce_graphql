@@ -14,13 +14,20 @@ import { CldUploadWidget } from 'next-cloudinary';
 import DELETE_IMAGE from '../../graphql/mutations/DELETE_CLOUDINARY.graphql'
 import { CiSquareRemove } from "react-icons/ci";
 
+
+
 interface ImageData {
   url: string;
   publicId: string;
   displayName: string;
 }
+ 
+interface moreInformation {
+  key: string;
+  value: string;
+}
 
-const AddCategory = () => {
+const AddCategory: React.FC = () => {
 
   const image_cloudinary_cloud_name = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
@@ -34,6 +41,7 @@ const AddCategory = () => {
 
   const [toggleUpladedImageName, setToggleUpladedImageName] = useState(false);
   const [imagerequiredtoggle, setimagerequiredtoggle] = useState(false);
+  const [counter, setCounter] = useState<moreInformation[]>([]);
 
   useEffect(() => {
     const product_images = localStorage.getItem('imageUrls');
@@ -44,6 +52,26 @@ const AddCategory = () => {
       });
     }
   }, []);
+
+
+  const addSection = () => {
+    setCounter(prevCounter => [
+      ...prevCounter,
+      { key: '', value: '' }
+    ]);
+  };
+
+  const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const list = [...counter];
+    list[index] = {
+      ...list[index],
+      [name]: value,
+    };
+    setCounter(list);
+  };
+  
+
   
   const {
     handleSubmit,
@@ -429,10 +457,41 @@ const AddCategory = () => {
                     </p>
                   )}
               </div>
+      {counter.length > 0 && counter.map((data, index) => (
+        <form key={index} className="grid grid-cols-2 gap-4 h-14">
+          <div className="flex flex-col">
+            <label htmlFor={`key${index}`} className="text-gray-700">Key {index + 1}:</label>
+            <input
+              type="text"
+              id={`key${index}`}
+              name="key"
+              placeholder="Key"
+              value={data.key}
+              onChange={(e) => handleInputChange(index, e)}
+              className="border border-slate-400 rounded-md py-2 px-3 mt-1"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor={`value${index}`} className="text-gray-700">Value {index + 1}:</label>
+            <input
+              type="text"
+              id={`value${index}`}
+              name="value"
+              placeholder="Value"
+              value={data.value}
+              onChange={(e) => handleInputChange(index, e)}
+              className="border border-slate-400 rounded-md py-2 px-3 mt-1"
+            />
+          </div>
+        </form>
+      ))}
 
-
-  
-
+      <div
+        className="flex justify-center items-center border border-slate-400 h-10 cursor-pointer"
+        onClick={addSection}
+      >
+        Add Section
+      </div>
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Is Active                  

@@ -8,8 +8,6 @@ export const CategoryInputType = new GraphQLInputObjectType({
       category_image: {type: GraphQLString},
       is_available: { type: new GraphQLNonNull(GraphQLBoolean)},
       is_parent: { type:new GraphQLNonNull(GraphQLBoolean)},
-      parent: {
-        type: CategoryInputType
-      }
+      parent: { type: GraphQLString}
     }) 
   })

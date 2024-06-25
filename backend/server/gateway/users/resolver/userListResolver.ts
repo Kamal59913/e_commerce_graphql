@@ -1,5 +1,4 @@
-import userModel from "../../../../db/models/users_model/users.model";
-import { validateEmail, validatePassword, validateUsername } from "../../validation/validation";
+import userModel from "@/db/models/users_model/users.model";
 
 const getUserResolver = async (parent, args, context) => {
   try {

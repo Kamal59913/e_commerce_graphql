@@ -8,15 +8,22 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import CREATE_CATEGORY from "../../graphql/mutations/CREATE_CATEGORY.graphql"
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { FormValues } from "./types";
 import { CldUploadWidget } from 'next-cloudinary';
 import DELETE_IMAGE from '../../graphql/mutations/DELETE_CLOUDINARY.graphql'
 import { CiSquareRemove } from "react-icons/ci";
 import SelectCategory from "../SelectGroup/SelectCategory";
+import { useRouter } from "next/navigation";
 
+interface ImageData {
+  url: string;
+  publicId: string;
+  displayName: string;
+}
 
-const AddCategory = () => {
+const AddCategory: React.FC = () => {
+  const router = useRouter()
 
   const image_cloudinary_cloud_name = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
@@ -27,18 +34,45 @@ const AddCategory = () => {
   /*image upload only possible it name and description has been written*/
   const [publicId, setPublicId] = useState<string>('');
   /*wheather to clear the image from localstorage or not*/
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [isSingleImage, setIsSIngleImage] = useState(false);
 
   const [toggleUpladedImageName, setToggleUpladedImageName] = useState(false);
   const [imagerequiredtoggle, setimagerequiredtoggle] = useState(false);
+  const [categoryImage, setCategoryImage] = useState<ImageData | null>(null);
+
+  /*Here to get the value from the drop down list*/
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [isvalidType, setIsValidType] = useState(true);
+
+  const handleCategoryChange = (selectedCategory: string) => {
+    setSelectedCategory(selectedCategory); // Update the state with the selected category
+    console.log(selectedCategory, "here is the selected category")
+  };
+
 
   useEffect(()=> {
-    const public_id = localStorage.getItem('public_id')
+    const categoryImage = localStorage.getItem('categoryImage')
 
-       if(public_id) {
-        deleteImage(public_id)
+       if(categoryImage) {
+        const parsedImages: { url: string; publicId: string; displayName: string; } = JSON.parse(categoryImage);
+        deleteImage(parsedImages.publicId)
        }
 
   },[])
+  useEffect(()=> {
+    const categoryImage = localStorage.getItem('categoryImage')
+      if(!isvalidType) {
+        if(categoryImage) {
+          const parsedImages: { url: string; publicId: string; displayName: string; } = JSON.parse(categoryImage);
+          deleteImage(parsedImages.publicId)
+         }
+      }
+  },[isvalidType])
+
+  useEffect(()=> {
+    setIsDisabled(!isDisabled)
+  }, [enabledIsParent])
 
   const {
     handleSubmit,
@@ -66,19 +100,27 @@ const AddCategory = () => {
     }
   }, [enabledIsParent, enabledIsAvailable, setValue]);
 
-  const [createCategory, { data, loading, error }] = useMutation(CREATE_CATEGORY);
+  const [createCategory] = useMutation(CREATE_CATEGORY);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     if (imageUrl === '') {
-      setimagerequiredtoggle(true);
-      // toast.error("Unable to add category without an image", {
-      //   position: "top-center",
-      //   toastId: "imageUploadError"
-      // });
+      setimagerequiredtoggle(true); 
       return;
     } else {
       setimagerequiredtoggle(false);
     }
+
+    if(!isvalidType) {
+      toast.error("Invalid image format, allowed only jpeg, img and png", {
+        position:"top-center"
+      })
+      return;
+    }
+
+    if(isSingleImage) {
+      return;
+    }
+
     try {
       const submitResponse = await createCategory({
         variables: {
@@ -89,6 +131,7 @@ const AddCategory = () => {
             category_image: imageUrl,
             is_available: enabledIsParent,
             is_parent: enabledIsAvailable,
+            parent: selectedCategory
           }
         }
       })
@@ -98,12 +141,14 @@ const AddCategory = () => {
 
       if(submitResponse.data.addCategory.success == true) {
         setImageUrl('')
+        setCategoryImage(null)
         setToggleUpladedImageName(false)
-        localStorage.removeItem('public_id')
+        localStorage.removeItem('categoryImage')
         toast.success("Successfully added category", {
           position: "top-center",
           toastId: "randomid"
         })
+        router.push("/product-management/categories")
       }
 
       const errors = submitResponse.data.addCategory.errors;
@@ -129,11 +174,11 @@ const AddCategory = () => {
   /*Delete Image*/
   const [deleteImageGrapqhl] = useMutation(DELETE_IMAGE);
 
+ 
 
   const deleteImage = async (url: string) => {
-    const public_id = localStorage.getItem('public_id')
-
-    if(publicId != '' || public_id) {
+    const categoryImage = localStorage.getItem('categoryImage')
+    if(categoryImage) {
     console.log(url, "here is our url")
     const deleteImageResponse = await deleteImageGrapqhl({
       variables : {
@@ -144,17 +189,35 @@ const AddCategory = () => {
       }
     }) 
       if(deleteImageResponse.data.deleteImage.success == true) {
-        localStorage.removeItem('public_id')
+        setCategoryImage(null)
+        localStorage.removeItem('categoryImage')
       }
   }
   }
 
 
+  const imageLengthError = () => {
+    const categoryImage = localStorage.getItem('categoryImage')
+
+       if(categoryImage) {
+        const parsedImages: { url: string; publicId: string; displayName: string; } = JSON.parse(categoryImage);
+        if(parsedImages.url) {
+          setIsSIngleImage(true)
+          deleteImage(parsedImages.publicId)
+          localStorage.removeItem('categoryImage')
+          setCategoryImage(null)
+    
+        } 
+      }else {
+        setIsSIngleImage(false)
+      }
+
+  }
   return (
-    <>
+    <div>
     <ToastContainer/>
       <Breadcrumb pageName="Add a Category" />
-      <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 mb-20">
+      <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 xl:mb-40 lg:mb-36 md:mb-30 mb-40 bg-slate-400">
         <div className="flex flex-col gap-9">
           {/* <!-- Input Fields --> */}
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -197,14 +260,34 @@ const AddCategory = () => {
                     {({ open, results}) => {
                       console.log(results, "here is the results")
                       useEffect(() => {
+                        imageLengthError()
                         if (results?.info && typeof results.info !== 'string') {
                           const info = results.info;
                           console.log(info.url, "here is the url, agaim")
+                          if(!(info.format == 'jpg' || info.format == 'jpeg' || info.format == 'png')) {
+                            setIsValidType(false)
+                            toast.error("only jpg, jpeg and png files are allowed", {
+                              position: "top-center",
+                              toastId: 'randomId2'
+                            });
+                          } else {
+                            setIsValidType(true)
+                          }
+                          setCategoryImage({
+                            url: info.url,
+                            publicId: info.public_id,
+                            displayName: info.original_filename
+                          })
+
+                          localStorage.setItem('categoryImage', JSON.stringify({
+                            url: info.url,
+                            publicId: info.public_id,
+                            displayName: info.original_filename
+                          }))
                           setimagerequiredtoggle(false)
                           setImageUrl(info.url);
                           setDisplayName(info.original_filename);
                           setPublicId(info.public_id)
-                          localStorage.setItem('public_id', info.public_id)
                           setToggleUpladedImageName(true);
                         }
                       }, [results]);
@@ -231,24 +314,49 @@ const AddCategory = () => {
                     )
                   }
                 }
-              </CldUploadWidget> 
-              <span className="ml-4 mt-2 flex gap-6">{toggleUpladedImageName && 
-                <> Uploaded the image <span className="font-bold italic text-md">{displayName}</span> 
+              </CldUploadWidget>        
+              </div>    
+              {categoryImage && 
+                  <div className="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
+                  <div className="relative overflow-hidden rounded-md aspect-w-8 aspect-h-6 md:aspect-w-3 md:aspect-h-6 lg:aspect-w-20 lg:aspect-h-12 xl:aspect-h-18">
+
+                    <img
+                      src={categoryImage.url}
+                      alt={categoryImage.displayName}
+                      className="object-cover w-full h-full"
+                    />  
+                    <div className="font-bold italic text-sm">{categoryImage.displayName}</div> 
+                    <div className="relative group inline-block">
                 <CiSquareRemove 
-                size={24}
+                size={24} 
                 style={{color: 'red', cursor:'pointer'}}
                 onClick={(e)=> {
                 e.preventDefault()
                 setToggleUpladedImageName(false)
-                deleteImage(publicId)}
+                deleteImage(categoryImage.publicId)}
               }
                 /> 
-                </>} 
-                </span>
-              </div>    
-              {imagerequiredtoggle && (
+                <div className="ml-14 absolute z-10 left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-32 bg-red text-white text-center text-xs rounded py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Remove Image
+                </div>
+            </div>
+                </div>
+                </div>
+                }
+
+              {(imagerequiredtoggle && isvalidType) &&(
                     <p className='text-[#FF5733] text-xs  pt-2'>
                      Unnable to add category without an image
+                    </p>
+                  )}
+              {!isvalidType && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                     Only JPG, PNG and JPEG allowed
+                    </p>
+                  )}
+                {isSingleImage && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                     Multiple Images are not allowed
                     </p>
                   )}
               <div>
@@ -378,9 +486,8 @@ const AddCategory = () => {
       </label>
     </div>              
     </div>
-    {
-    enabledIsParent&& <SelectCategory/>
-    }
+  <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/>
+    
     <button type="submit"
             className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 w-64 md:w-400">
       Save
@@ -389,7 +496,7 @@ const AddCategory = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

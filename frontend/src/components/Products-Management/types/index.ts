@@ -6,5 +6,6 @@ export interface FormValues {
   category_image?: string;
   isparent: Boolean,
   isavailable: Boolean,
+  product?: string
   // parent_category: string
 }

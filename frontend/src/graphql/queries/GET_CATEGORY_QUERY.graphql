@@ -1,0 +1,23 @@
+query GetCategory {
+  getCategory {
+    success
+    category {
+      category_name
+      category_description
+      category_image
+      is_available
+      is_parent
+      parent {
+        category_name
+        category_description
+        category_image
+        is_available
+        is_parent
+      }
+    }
+    errors {
+      message
+      code
+    }
+  }
+}
