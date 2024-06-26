@@ -8,10 +8,12 @@ import Select from 'react-select';
 
 interface addCategoryProps {
   isDisabled: boolean,
-  onSelectCategoryChange: (selectedCategory: string) => void;
+  onSelectCategoryChange: (selectedCategory: string) => void,
+  disableCategoryTest : () => void
+
 }
 
-const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategoryChange}) => {
+const SelectCategoryForProducts: React.FC<addCategoryProps> = ({isDisabled, onSelectCategoryChange, disableCategoryTest}) => {
 
   const [isClearable, setIsClearable] = useState(true);
   const [isSearchable, setIsSearchable] = useState(true);
@@ -34,14 +36,17 @@ const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategor
   }, [data]);
 
   const handleCategoryChange = (selectedOption: any) => {
-    const categoryValue = selectedOption.value;
+    const categoryValue = selectedOption? selectedOption.value: "";
+
+    if(categoryValue != "") {
+      disableCategoryTest()
+    }
     onSelectCategoryChange(categoryValue); // Call the callback function with the selected value
   };
     // Transform data into options array
 
       let options = [];
       if (data) {
-        console.log("another set of data", data)
         options = data.getCategory.category.map((category: any) => ({
           value: category.category_name,
           label: category.category_name,
@@ -61,9 +66,9 @@ const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategor
     <div>
       <div className="relative z-20 bg-white dark:bg-form-input h-full">
         <Select
-          className="basic-single mb-10"
+          className="basic-single"
           classNamePrefix="select"
-          defaultValue="Select From Categories"
+          defaultValue=""
           isDisabled={!isDisabled}
           isLoading={isLoading}
           isClearable={isClearable}
@@ -78,4 +83,4 @@ const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategor
   );
 };
 
-export default SelectCategory;
+export default SelectCategoryForProducts;

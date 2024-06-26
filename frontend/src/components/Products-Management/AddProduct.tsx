@@ -13,7 +13,10 @@ import { FormValues } from "./types/productFormvalues";
 import { CldUploadWidget } from 'next-cloudinary';
 import DELETE_IMAGE from '../../graphql/mutations/DELETE_CLOUDINARY.graphql'
 import { CiSquareRemove } from "react-icons/ci";
-
+import { FaMinus } from "react-icons/fa";
+import SelectCategoryForProducts from "../SelectGroup/SelectCategoryForProducts";
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 
 interface ImageData {
@@ -41,7 +44,28 @@ const AddCategory: React.FC = () => {
 
   const [toggleUpladedImageName, setToggleUpladedImageName] = useState(false);
   const [imagerequiredtoggle, setimagerequiredtoggle] = useState(false);
+  const [isImagesMoreThan4, setisImagesMoreThan4] = useState(false);
   const [counter, setCounter] = useState<moreInformation[]>([]);
+
+  /*These hooks are for the category selection*/
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [isDisabled, setIsDisabled] = useState(true);
+
+  /*hook for defining category selection*/
+  const [isCategorySelected, setisCategorySelected] = useState(false)
+
+
+  const handleCategoryChange = (selectedCategory: string) => {
+    setSelectedCategory(selectedCategory); // Update the state with the selected category
+    console.log(selectedCategory, "here is the selected category")
+  };
+  /*Ending of Category Selection*/
+
+
+  /*passing function to selectCategory For Products*/
+  const disableCategoryTest = () => {
+    setisCategorySelected(false)
+  }
 
   useEffect(() => {
     const product_images = localStorage.getItem('imageUrls');
@@ -54,12 +78,33 @@ const AddCategory: React.FC = () => {
   }, []);
 
 
+  useEffect(() => {
+    console.log("Here is the details",counter)
+  }, [counter])
+
+
+  const checkIfImageMoreThan = () => {
+    if(imageUrls.length> 4) {
+      setisImagesMoreThan4(true)
+    } else {
+      setisImagesMoreThan4(false)
+    }
+  }
+
   const addSection = () => {
     setCounter(prevCounter => [
       ...prevCounter,
       { key: '', value: '' }
     ]);
   };
+
+const removeSection = () => {
+  setCounter(prevCounter => {
+    if (prevCounter.length === 0) {
+    }
+    return prevCounter.slice(0, -1);
+  });
+}
 
   const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -110,6 +155,19 @@ const AddCategory: React.FC = () => {
      else {
       setimagerequiredtoggle(false);
     }
+
+    if(imageUrls.length> 4) {
+      setisImagesMoreThan4(true);
+    } else {
+      setisImagesMoreThan4(false);
+    }
+
+    if(selectedCategory == "") {
+      setisCategorySelected(true)
+      return;
+    } else {
+      setisCategorySelected(false)
+    }
     try {
       const submitResponse = await createCategory({
         variables: {
@@ -122,7 +180,9 @@ const AddCategory: React.FC = () => {
             currency: values.currency,
             isActive: values.isActive,
             product_images: imageUrls,
-            weight: values.weight
+            weight: values.weight,
+            more_details: counter.length>0 ? counter : null,
+            product_category: selectedCategory
           }
         }
       })
@@ -235,6 +295,7 @@ const AddCategory: React.FC = () => {
               <CldUploadWidget uploadPreset="cloudinary_image_upload"
               >
                     {({ open, results}) => {
+                      checkIfImageMoreThan()
                       console.log(results, "here is the results")
                       useEffect(() => {
                         if (results?.info && typeof results.info !== 'string') {
@@ -286,7 +347,7 @@ const AddCategory: React.FC = () => {
                 }
               </CldUploadWidget> 
               </div>  
-  {imageUrls.length>0 && (
+  {(imageUrls.length>0 && !isImagesMoreThan4) && (
     <div className="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
   {
     imageUrls.map((image, index) => (
@@ -294,9 +355,11 @@ const AddCategory: React.FC = () => {
         <img
           src={image.url}
           alt={image.displayName}
-          className="object-cover w-full h-full"
+          className="object-cover w-full h-44"
         />
-          <span className="font-bold italic text-sm">{image.displayName}</span> 
+        <span className="font-bold italic text-sm">{image.displayName}</span> 
+          <div className="absolute group inline-block ml-2">
+            <div className="flex gap-1">
           <CiSquareRemove 
             size={24}
             style={{ color: 'red', cursor: 'pointer' }}
@@ -305,6 +368,12 @@ const AddCategory: React.FC = () => {
               deleteImage(image.publicId);
             }}
           /> 
+          </div>
+          <div className="ml-14 absolute z-10 left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-32 bg-red text-white text-center text-xs rounded py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Remove Image
+            </div>
+          </div>
+
       </div>
     ))
   }  </div>
@@ -316,7 +385,11 @@ const AddCategory: React.FC = () => {
                      Unnable to add Product without images
                     </p>
                   )}
-              
+              {isImagesMoreThan4 && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                     Cannot Select Images more than 4 
+                    </p>
+              )}
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Stock Quantity
@@ -336,8 +409,7 @@ const AddCategory: React.FC = () => {
                     </p>
                   )}
               </div>
-
-                            
+               
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Product Price
@@ -457,41 +529,59 @@ const AddCategory: React.FC = () => {
                     </p>
                   )}
               </div>
+              <label className="block text-sm font-medium text-black dark:text-white"> Add More Details</label>
       {counter.length > 0 && counter.map((data, index) => (
-        <form key={index} className="grid grid-cols-2 gap-4 h-14">
+        <div key={index} className="grid grid-cols-2 gap-4 h-14">
           <div className="flex flex-col">
-            <label htmlFor={`key${index}`} className="text-gray-700">Key {index + 1}:</label>
+            <label htmlFor={`key${index}`} className="text-gray-700"></label>
             <input
               type="text"
               id={`key${index}`}
               name="key"
-              placeholder="Key"
+              placeholder="Title"
               value={data.key}
               onChange={(e) => handleInputChange(index, e)}
               className="border border-slate-400 rounded-md py-2 px-3 mt-1"
             />
           </div>
           <div className="flex flex-col">
-            <label htmlFor={`value${index}`} className="text-gray-700">Value {index + 1}:</label>
+            <label htmlFor={`value${index}`} className="text-gray-700"></label>
             <input
               type="text"
               id={`value${index}`}
               name="value"
-              placeholder="Value"
+              placeholder="Description"
               value={data.value}
               onChange={(e) => handleInputChange(index, e)}
               className="border border-slate-400 rounded-md py-2 px-3 mt-1"
             />
           </div>
-        </form>
+        </div>
       ))}
+      {counter.length>0 &&       
+      <div
+        className="flex justify-center items-center border border-slate-400 h-6 cursor-pointer"
+        onClick={removeSection}
+      >
+        <FaMinus/>
+      </div>
+      }
 
       <div
         className="flex justify-center items-center border border-slate-400 h-10 cursor-pointer"
         onClick={addSection}
       >
-        Add Section
+        Add Row
       </div>
+      <label className="block text-sm font-medium text-black dark:text-white">
+        Select Category
+    </label>
+      <SelectCategoryForProducts isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange} disableCategoryTest={disableCategoryTest}/>
+      {isCategorySelected && (
+                    <p className='text-[#FF5733] text-xs'>
+                    Unable to Add Product without Category
+                    </p>
+      )}
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Is Active                  

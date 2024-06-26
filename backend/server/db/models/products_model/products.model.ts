@@ -20,6 +20,7 @@ export type Product = {
   shipping_dimensions: string,
   product_category: Schema.Types.ObjectId,
   product_images: { displayName: string; url: string; publicId: string }[];
+  more_details: { key: string, value: string }[];
 }
 
 const ProductsSchema = new Schema<Product>({
@@ -101,7 +102,15 @@ const ProductsSchema = new Schema<Product>({
       },
     ],    required: false,
     default: [],
-},
+  },
+  more_details: {
+    type: [
+      {
+        key: {type: String, required: true},
+        value: {type: String, required: true}
+      }
+    ]
+  }
 },
   {
     timestamps: true,

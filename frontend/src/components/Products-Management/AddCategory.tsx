@@ -103,12 +103,6 @@ const AddCategory: React.FC = () => {
   const [createCategory] = useMutation(CREATE_CATEGORY);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    if (imageUrl === '') {
-      setimagerequiredtoggle(true); 
-      return;
-    } else {
-      setimagerequiredtoggle(false);
-    }
 
     if(!isvalidType) {
       toast.error("Invalid image format, allowed only jpeg, img and png", {
@@ -486,6 +480,9 @@ const AddCategory: React.FC = () => {
       </label>
     </div>              
     </div>
+    <label className="block text-sm font-medium text-black dark:text-white">
+        Select Parent Category
+    </label>
   <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/>
     
     <button type="submit"

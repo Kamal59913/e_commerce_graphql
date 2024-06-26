@@ -1,6 +1,7 @@
 import { CurrencyType } from "@/db/models/products_type/products_type";
 import { GraphQLBoolean, GraphQLInputObjectType, GraphQLNonNull, GraphQLString, GraphQLFloat, GraphQLID, GraphQLList, GraphQLObjectType } from "graphql";
 import { ProductImageType } from "@/db/models/products_type/image_type";
+import { moreInformationType } from "@/db/models/products_type/products_type";
 
 export const ProductsInputType = new GraphQLInputObjectType({
     name: 'ProductsInputType',
@@ -20,9 +21,12 @@ export const ProductsInputType = new GraphQLInputObjectType({
       is_new: { type: GraphQLBoolean },
       shipping_weight: { type: GraphQLString },
       shipping_dimensions: { type: GraphQLString },
-      product_category: { type: GraphQLID}, // Ensure this is Non-Null if it's required
+      product_category: { type: GraphQLString}, // Ensure this is Non-Null if it's required
       product_images: {
         type: ProductImageType
-      },    
+      },
+      more_details : {
+        type: moreInformationType
+      }    
     })
   });

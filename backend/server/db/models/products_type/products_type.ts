@@ -1,4 +1,4 @@
-import { GraphQLEnumType } from "graphql";
+import { GraphQLEnumType, GraphQLInputObjectType, GraphQLList, GraphQLString } from "graphql";
 
 export  const CurrencyType = new GraphQLEnumType({
     name: 'CurrencyType',
@@ -8,3 +8,11 @@ export  const CurrencyType = new GraphQLEnumType({
       EUR: { value: 'EUR' }
     }
   });
+
+  export const moreInformationType =  new GraphQLList(new GraphQLInputObjectType({
+    name: 'moreInformationType',
+    fields:  {
+      key: { type: GraphQLString },
+      value: { type: GraphQLString },
+    },
+}))

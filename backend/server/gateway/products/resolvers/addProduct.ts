@@ -1,12 +1,51 @@
 import ProductModel from "@/db/models/products_model/products.model";
+import CategoryModel from "@/db/models/categories_model/categories.model";
 
 const addProduct = async (parent, args, context) => {
-  console.log(args.input, "here is the input"
-  )
+  const {
+    product_name,
+    product_description,
+    stock_quantity,
+    product_price,
+    discount_price,
+    currency,
+    isActive,
+    weight,
+    dimensions,
+    material,
+    model_number,
+    warranty,
+    is_new,
+    shipping_weight,
+    shipping_dimensions,
+    product_category,
+    product_images,
+    more_details,
+  } = args.input
+
+  const getParent= await CategoryModel.findOne({category_name: product_category})
+
   try {
     const created_product = new ProductModel(
       {
-        ...args.input
+        product_name,
+        product_description,
+        stock_quantity,
+        product_price,
+        discount_price,
+        currency,
+        isActive,
+        weight,
+        dimensions,
+        material,
+        model_number,
+        warranty,
+        is_new,
+        shipping_weight,
+        shipping_dimensions,
+        product_category: getParent?._id || null,
+        product_images,
+        more_details,
       }
     );
 

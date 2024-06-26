@@ -11,10 +11,15 @@ export interface FormValues {
   material?: string;
   model_number?: string;
   warranty?: string;
-};
-
+  more_details? : MoreDetails[];
+}
 interface ProductImage {
   displayName: string;
   url: string;
   publicId: string;
+}
+
+interface MoreDetails {
+  key: string;
+  value: string;
 }
