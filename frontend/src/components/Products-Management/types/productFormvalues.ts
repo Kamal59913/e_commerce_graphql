@@ -1,6 +1,6 @@
 export interface FormValues {
   product_name: string;
-  product_description: string;
+  product_description?: string;
   stock_quantity: number;
   product_price: number;
   currency: string;

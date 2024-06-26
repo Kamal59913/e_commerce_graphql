@@ -15,7 +15,8 @@ import DELETE_IMAGE from '../../graphql/mutations/DELETE_CLOUDINARY.graphql'
 import { CiSquareRemove } from "react-icons/ci";
 import { FaMinus } from "react-icons/fa";
 import SelectCategoryForProducts from "../SelectGroup/SelectCategoryForProducts";
-import { Editor } from "react-draft-wysiwyg";
+import { Editor } from 'react-draft-wysiwyg';
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 
@@ -53,6 +54,21 @@ const AddCategory: React.FC = () => {
 
   /*hook for defining category selection*/
   const [isCategorySelected, setisCategorySelected] = useState(false)
+  const [isDescriptionAdded, setIsDescriptionAdded] = useState(false)
+
+  /*react text-editor starting add it here*/
+  const [editorState, setEditorState] = useState(() =>
+    EditorState.createEmpty()
+    );
+    const updateTextDescription = async (state: any) => {
+
+      await setEditorState(state);
+      
+      const data = convertToRaw(editorState.getCurrentContent());
+      console.log("here is the data data data", data)
+      };
+/*************************************************************/
+    
 
 
   const handleCategoryChange = (selectedCategory: string) => {
@@ -148,6 +164,8 @@ const removeSection = () => {
   const [createCategory, { data, loading, error }] = useMutation(ADD_PRODUCT);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    const description_category = JSON.stringify(editorState)
+    console.log(description_category, "here is the description category")
     if (imageUrls.length == 0) {
       setimagerequiredtoggle(true);
       return;
@@ -174,7 +192,7 @@ const removeSection = () => {
           input:
           {
             product_name: values.product_name,
-            product_description: values.product_description,
+            product_description: description_category,
             stock_quantity: values.stock_quantity,
             product_price: values.product_price,
             currency: values.currency,
@@ -279,27 +297,41 @@ const removeSection = () => {
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Product Description
                 </label>
-                <textarea 
+                <div className="border border-slate-200 pl-2"
+
+                >
+                <Editor
+                    editorState={editorState}
+                    toolbarClassName="toolbarClassName"
+                    wrapperClassName="wrapperClassName"
+                    editorClassName="editorClassName"
+                    onEditorStateChange={updateTextDescription}
+                    />
+                  </div>
+                {/* <textarea 
                   rows={4}
                   placeholder="Category Description"
                   className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   {...register('product_description')} // Register the 'first_name' field here
-                ></textarea>
+                ></textarea> */}
                     {errors.product_description && (
                     <p className='text-[#FF5733] text-xs  pt-2'>
                     {errors.product_description.message}
                     </p>
                   )}              
               </div>
+
+
               <div className="flex">
               <CldUploadWidget uploadPreset="cloudinary_image_upload"
               >
                     {({ open, results}) => {
+      
                       checkIfImageMoreThan()
-                      console.log(results, "here is the results")
                       useEffect(() => {
                         if (results?.info && typeof results.info !== 'string') {
                           const info = results.info;
+                          console.log(info, "info")
                           console.log(info.url, "here is the url, agaim")
 
                           setImageUrls((prevImageUrls) => [
