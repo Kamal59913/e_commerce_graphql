@@ -4,7 +4,7 @@ import SelectParent from "../SelectGroup/SelectParent";
 import { formSchema } from "./SchemaValidation";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import CREATE_CATEGORY from "../../graphql/mutations/CREATE_CATEGORY.graphql"
@@ -15,6 +15,9 @@ import DELETE_IMAGE from '../../graphql/mutations/DELETE_CLOUDINARY.graphql'
 import { CiSquareRemove } from "react-icons/ci";
 import SelectCategory from "../SelectGroup/SelectCategory";
 import { useRouter } from "next/navigation";
+import { Editor } from 'react-draft-wysiwyg';
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 interface ImageData {
   url: string;
@@ -44,6 +47,11 @@ const AddCategory: React.FC = () => {
   /*Here to get the value from the drop down list*/
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isvalidType, setIsValidType] = useState(true);
+
+  const [editorState, setEditorState] = useState(() =>
+    EditorState.createEmpty()
+    );
+
 
   const handleCategoryChange = (selectedCategory: string) => {
     setSelectedCategory(selectedCategory); // Update the state with the selected category
@@ -75,6 +83,7 @@ const AddCategory: React.FC = () => {
   }, [enabledIsParent])
 
   const {
+    control,
     handleSubmit,
     reset,
     register,
@@ -100,9 +109,15 @@ const AddCategory: React.FC = () => {
     }
   }, [enabledIsParent, enabledIsAvailable, setValue]);
 
+  const updateTextDescription = async (state: any) => {
+    setEditorState(state);
+    };
+
   const [createCategory] = useMutation(CREATE_CATEGORY);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    const data = convertToRaw(editorState.getCurrentContent());
+    const description_categories = JSON.stringify(data)
 
     if(!isvalidType) {
       toast.error("Invalid image format, allowed only jpeg, img and png", {
@@ -121,7 +136,7 @@ const AddCategory: React.FC = () => {
           input:
           {
             category_name: values.category_name,
-            category_description: values.category_description,
+            category_description: description_categories,
             category_image: imageUrl,
             is_available: enabledIsParent,
             is_parent: enabledIsAvailable,
@@ -236,12 +251,31 @@ const AddCategory: React.FC = () => {
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Category Description
                 </label>
+{/* 
                 <textarea 
                   rows={4}
                   placeholder="Category Description"
                   className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   {...register('category_description')} // Register the 'first_name' field here
-                ></textarea>
+                ></textarea> */}
+                    <Controller
+                    name="category_description"
+                    control={control}
+                    defaultValue=""
+                    render={({ field: { onChange, value } }) => (
+                      <Editor
+                        editorState={editorState}
+                        onEditorStateChange={state => {
+                          updateTextDescription(state);
+                          onChange(convertToRaw(state.getCurrentContent()).blocks[0].text);
+                        }}
+                        toolbarClassName="toolbarClassName"
+                        wrapperClassName="wrapperClassName"
+                        editorClassName="editorClassName"
+                      />
+                    )}
+                  />
+
                     {errors.category_description && (
                     <p className='text-[#FF5733] text-xs  pt-2'>
                     {errors.category_description.message}
@@ -483,7 +517,7 @@ const AddCategory: React.FC = () => {
     <label className="block text-sm font-medium text-black dark:text-white">
         Select Parent Category
     </label>
-  <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/>
+  {/* <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/> */}
     
     <button type="submit"
             className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 w-64 md:w-400">

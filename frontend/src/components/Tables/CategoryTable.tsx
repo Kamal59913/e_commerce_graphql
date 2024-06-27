@@ -2,68 +2,66 @@
 import { BRAND } from "@/types/brand";
 import Image from "next/image";
 import { useQuery } from "@apollo/client";
-import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_QUERY.graphql'
+import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_QUERY.graphql';
 import { useEffect, useState } from "react";
+import { Editor, EditorState, convertFromRaw } from 'draft-js';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import { CiEdit } from "react-icons/ci";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { useRouter } from "next/navigation";
 
-const brandData: BRAND[] = [
+interface Category {
+  category_name: string;
+  category_image: string;
+  category_description: EditorState;
+  is_available: boolean;
+  is_parent: boolean;
+  parent?: { category_name: string } | null;
+}
 
-  {
-    logo: "/images/brand/brand-01.svg",
-    name: "Google",
-    visitors: 3.5,
-    revenues: "5,768",
-    sales: 590,
-    conversion: 4.8,
-  },
-  {
-    logo: "/images/brand/brand-02.svg",
-    name: "Twitter",
-    visitors: 2.2,
-    revenues: "4,635",
-    sales: 467,
-    conversion: 4.3,
-  },
-  {
-    logo: "/images/brand/brand-03.svg",
-    name: "Github",
-    visitors: 2.1,
-    revenues: "4,290",
-    sales: 420,
-    conversion: 3.7,
-  },
-  {
-    logo: "/images/brand/brand-04.svg",
-    name: "Vimeo",
-    visitors: 1.5,
-    revenues: "3,580",
-    sales: 389,
-    conversion: 2.5,
-  },
-  {
-    logo: "/images/brand/brand-05.svg",
-    name: "Facebook",
-    visitors: 3.5,
-    revenues: "6,768",
-    sales: 390,
-    conversion: 4.2,
-  },
-];
 
 const CategoryTable = () => {
-
+  const router = useRouter();
   const { data, loading, error } = useQuery(GET_CATEGORIES);
-  const [ categoryData, setCategoryData] = useState([{}]);
+  const [categoryData, setCategoryData] = useState<Category[]>([]);
 
-  console.log(data, "here is the data")
   useEffect(() => {
     if (data && data.getCategory) {
-      setCategoryData(data.getCategory.category);
+      const processedCategories = data.getCategory.category.map((category: { category_description: string }) => {
+        try { 
+          const xyz = JSON.parse(category.category_description);
+          const contentState = convertFromRaw(xyz);
+          const processedDescription = EditorState.createWithContent(contentState);
+
+          return {
+            ...category,
+            category_description: processedDescription,
+          };
+        } catch (error) {
+          console.error("Error parsing category description:", error);
+          return {
+            ...category,
+            category_description: EditorState.createEmpty(),
+          };
+        }
+      });
+      setCategoryData(processedCategories);
     }
   }, [data]);
 
+  const onEditorStateChange = (index: number, newEditorState: any) => {
+    const updatedCategoryData = [...categoryData];
+    updatedCategoryData[index].category_description = newEditorState;
+    setCategoryData(updatedCategoryData);
+  };
+
+  const editPageRedirect = (slug: string) => {
+    router.push(`/product-management/categories/edit/${slug}`)
+  }
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
-  
+
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1 xl: mt-10">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
@@ -71,69 +69,99 @@ const CategoryTable = () => {
       </h4>
 
       <div className="flex flex-col">
-        <div className="grid grid-cols-3 rounded-sm bg-gray-2 dark:bg-meta-4 sm:grid-cols-5">
-          <div className="p-2.5 xl:p-5">
+      <div className="grid grid-cols-11 gap-0">
+           <div className="p-2.5 xl:p-5 col-span-3">
             <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
               Name
             </h5>
           </div>
-            <div className="p-2.5 text-center xl:p-5">
-          <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
-            Details
-            </h5>
-          </div>
-          <div className="p-2.5 text-center xl:p-5">
+          <div className="p-2.5 xl:p-5 col-span-3 col-start-4">
             <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
-            Is Available
+              Details
             </h5>
           </div>
-          <div className="hidden p-2.5 text-center sm:block xl:p-5">
-          <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
-            Is Parent
+          <div className="p-2.5 xl:py-5 col-start-7">
+            <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
+              Is Available
             </h5>
           </div>
-          <div className="hidden p-2.5 text-center sm:block xl:p-5">
-          <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
-            Parent Category
-          </h5>
+          <div className="hidden p-2.5 text-center sm:block xl:py-5 w-26 col-start-8">
+            <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
+              Is Parent
+            </h5>
+          </div>
+          <div className="hidden p-2.5 text-center sm:block xl:p-5 col-span-2 col-start-9">
+            <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
+              Parent Category
+            </h5>
+          </div>
+          <div className="hidden p-2.5 text-center sm:block xl:p-5 col-span-1 col-start-11">
+            <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
+            </h5>
           </div>
         </div>
 
-        {categoryData.map((brand: any, key: any) => (
+        {categoryData.map((brand: Category, index: number) => (
           <div
-            className={`grid grid-cols-3 sm:grid-cols-5 ${
-              key === brandData.length - 1
+            className={`grid grid-cols-12 sm:grid-cols-11 gap-0 ${
+              index === categoryData.length - 1
                 ? ""
                 : "border-b border-stroke dark:border-strokedark"
             }`}
-            key={key}
+            key={index}
           >
-            <div className="relative items-center gap-3 p-2.5 xl:p-5">
+            <div className="relative items-center gap-3 p-2.5 xl:p-5 col-span-3">
               <div className="flex-shrink-0">
-                <img src={brand.category_image} alt="Brand"
-                className="h-36 mb-4"
+                <img
+                  src={brand.category_image}
+                  alt="Brand"
+                  className="h-36 mb-4"
                 />
               </div>
-              <p className="font-bold text-black dark:text-white sm:block">
-                {brand.category_name}
+              <div>
+                <p className="font-bold text-black dark:text-white sm:block">
+                  {brand.category_name} 
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center p-2.5 xl:p-5 col-span-3 col-start-4">
+              <Editor
+                editorState={brand.category_description}
+                onChange={(state : EditorState) => {
+                  onEditorStateChange(index, state)
+                }}
+                readOnly={true}
+              />
+            </div>
+            <div className="flex items-center justify-center p-2.5 xl:p-5 w-26 col-start-7">
+              <p className="text-black dark:text-white font-semibold">
+                {brand.is_available ? <>YES</> : <>NO</>}
               </p>
             </div>
 
-            <div className="flex items-center justify-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white">{brand.category_description}</p>
+            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5 w-26 col-start-8">
+              <p className="text-black dark:text-white font-semibold">
+                {brand.is_parent ? <>YES</> : <>NO</>}
+              </p>
             </div>
 
-            <div className="flex items-center justify-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white font-semibold">{brand.is_available? <>YES</> : <>NO</>}</p>
+            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5 col-span-2 col-start-9">
+              <p className="text-meta-5">
+                {brand.parent ? brand.parent.category_name : <>Not Exist</>}
+              </p>
             </div>
 
-            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-              <p className="text-black dark:text-white font-semibold">{brand.is_parent? <>YES</>: <>NO</>}</p>
+            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5 col-span-1 col-start-11">
+              <div className="mt-2 flex cursor-pointer gap-1"> 
+                  <CiEdit className="h-[24px] w-[24px] hover:text-[#355e3b]"
+                  onClick={()=> editPageRedirect(brand.category_name)}
+                  /> 
+                  <span className="ml-2"> </span>
+                  <RiDeleteBin6Line className="h-[20px] w-[24px] hover:text-red"/>
+              </div>
             </div>
 
-            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-              <p className="text-meta-5">{brand.parent? brand.parent.category_name : <>Not Exist</>}</p>
-            </div>
+
           </div>
         ))}
       </div>

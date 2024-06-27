@@ -4,7 +4,7 @@ import SelectParent from "../SelectGroup/SelectParent";
 import formSchema from "./SchemaValidation/productsSchema";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import ADD_PRODUCT from "../../graphql/mutations/ADD_PRODUCTS.graphql"
@@ -54,23 +54,13 @@ const AddCategory: React.FC = () => {
 
   /*hook for defining category selection*/
   const [isCategorySelected, setisCategorySelected] = useState(false)
-  const [isDescriptionAdded, setIsDescriptionAdded] = useState(false)
 
   /*react text-editor starting add it here*/
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
     );
-    const updateTextDescription = async (state: any) => {
 
-      await setEditorState(state);
-      
-      const data = convertToRaw(editorState.getCurrentContent());
-      console.log("here is the data data data", data)
-      };
-/*************************************************************/
     
-
-
   const handleCategoryChange = (selectedCategory: string) => {
     setSelectedCategory(selectedCategory); // Update the state with the selected category
     console.log(selectedCategory, "here is the selected category")
@@ -135,6 +125,7 @@ const removeSection = () => {
 
   
   const {
+    control,
     handleSubmit,
     reset,
     register,
@@ -156,6 +147,11 @@ const removeSection = () => {
     resolver: yupResolver(formSchema),
   });
 
+
+  const updateTextDescription = async (state: any) => {
+    setEditorState(state);
+    };
+
   useEffect(() => {
     setValue("isActive", enabledIsActive);
 
@@ -164,8 +160,9 @@ const removeSection = () => {
   const [createCategory, { data, loading, error }] = useMutation(ADD_PRODUCT);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    const description_category = JSON.stringify(editorState)
-    console.log(description_category, "here is the description category")
+    const data = convertToRaw(editorState.getCurrentContent());
+    const description_products = JSON.stringify(data)
+
     if (imageUrls.length == 0) {
       setimagerequiredtoggle(true);
       return;
@@ -192,7 +189,7 @@ const removeSection = () => {
           input:
           {
             product_name: values.product_name,
-            product_description: description_category,
+            product_description: description_products,
             stock_quantity: values.stock_quantity,
             product_price: values.product_price,
             currency: values.currency,
@@ -300,28 +297,32 @@ const removeSection = () => {
                 <div className="border border-slate-200 pl-2"
 
                 >
-                <Editor
-                    editorState={editorState}
-                    toolbarClassName="toolbarClassName"
-                    wrapperClassName="wrapperClassName"
-                    editorClassName="editorClassName"
-                    onEditorStateChange={updateTextDescription}
-                    />
+           <Controller
+                    name="product_description"
+                    control={control}
+                    defaultValue=""
+                    render={({ field: { onChange, value } }) => (
+                      <Editor
+                        editorState={editorState}
+                        onEditorStateChange={state => {
+                          updateTextDescription(state);
+                          onChange(convertToRaw(state.getCurrentContent()).blocks[0].text);
+                        }}
+                        toolbarClassName="toolbarClassName"
+                        wrapperClassName="wrapperClassName"
+                        editorClassName="editorClassName"
+                      />
+                    )}
+                  />
                   </div>
-                {/* <textarea 
-                  rows={4}
-                  placeholder="Category Description"
-                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  {...register('product_description')} // Register the 'first_name' field here
-                ></textarea> */}
-                    {errors.product_description && (
+
+                  {errors.product_description && (
                     <p className='text-[#FF5733] text-xs  pt-2'>
                     {errors.product_description.message}
                     </p>
-                  )}              
+                  )}
+        
               </div>
-
-
               <div className="flex">
               <CldUploadWidget uploadPreset="cloudinary_image_upload"
               >

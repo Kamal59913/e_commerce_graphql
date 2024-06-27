@@ -5,6 +5,9 @@ import ResponseType from "./types/ResponseType";
 import CreateCloudinaryResolver from "./resolvers/CreateCloudinaryResolver";
 import getCategoryResolver from "./resolvers/getCategoryResolver";
 import getCategoryResponseType from "./types/getCategoryResponseType";
+import { getCategoryOneInput } from "./types/getCategoryOneInput";
+import getCategoryOneResolver from "./resolvers/getCategoryOneResolver";
+import getCategoryOneResponseType from "./types/getCategoryOneResponseType";
 
 export const getCategoryQuery = {
     getCategory: {
@@ -34,14 +37,13 @@ export const categoryMutation = {
         },
         resolve: CreateCloudinaryResolver
     },
-
-    // updateCategory: {
-
-    // },
-    // deleteCategory: {
-
-    // },
-    // getCategory: {
-
-    // }
+    getCategoryOne: {
+        type: getCategoryOneResponseType,
+        args: {
+            input: {
+                type: getCategoryOneInput
+            }
+        },
+        resolve: getCategoryOneResolver
+    }
 }
