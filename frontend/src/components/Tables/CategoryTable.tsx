@@ -10,9 +10,15 @@ import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 
+interface ImageObject {
+  displayName: string,
+  url: string,
+  publicId: string
+}
+
 interface Category {
   category_name: string;
-  category_image: string;
+  category_image: ImageObject;
   category_description: EditorState;
   is_available: boolean;
   is_parent: boolean;
@@ -58,6 +64,10 @@ const CategoryTable = () => {
   const editPageRedirect = (slug: string) => {
     router.push(`/product-management/categories/edit/${slug}`)
   }
+
+  useEffect(()=> {
+    console.log(categoryData, "Here is the category data")
+  },[categoryData])
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -113,7 +123,7 @@ const CategoryTable = () => {
             <div className="relative items-center gap-3 p-2.5 xl:p-5 col-span-3">
               <div className="flex-shrink-0">
                 <img
-                  src={brand.category_image}
+                  src={brand.category_image?.url}
                   alt="Brand"
                   className="h-36 mb-4"
                 />

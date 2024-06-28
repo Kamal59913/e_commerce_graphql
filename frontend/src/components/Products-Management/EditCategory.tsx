@@ -28,58 +28,64 @@ interface ImageData {
   displayName: string;
 }
 
-const AddCategory: React.FC = () => {
+const EditCategory: React.FC = () => {
   const router = useRouter()
 
   const params = useParams()
 const slug = params['edit']
 const [categoryData, setCategoryData] = useState<any>(null);
+const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+const [enabledIsAvailable, setenabledIsAvailable] = useState(false);
+const [enabledIsParent, setenabledIsParent] = useState(false);
+const [imageUrl, setImageUrl] = useState('');
+const [displayName, setDisplayName] = useState('');
+/*image upload only possible it name and description has been written*/
+const [publicId, setPublicId] = useState<string>('');
+/*wheather to clear the image from localstorage or not*/
+const [isDisabled, setIsDisabled] = useState(false);
+const [isSingleImage, setIsSIngleImage] = useState(false);
 
+const [toggleUpladedImageName, setToggleUpladedImageName] = useState(false);
+const [imagerequiredtoggle, setimagerequiredtoggle] = useState(false);
+const [categoryImage, setCategoryImage] = useState<ImageData | null>(null);
+
+/*Here to get the value from the drop down list*/
+const [selectedCategory, setSelectedCategory] = useState<string>("");
+const [isvalidType, setIsValidType] = useState(true);
 const [getCategoryData, {data, loading, error}] = useMutation(GET_CATEGORY_ONE)
 
-  const CategoryDate = getCategoryData({
-    variables: {
-      input: {
-        "category_name": slug.toString()
-      }
-    }
-  })
-
-if(data) {
-  setCategoryData(data.getCategoryOne.category)
-}
-
+useEffect(() => {
+      const fetchCategoryData = async () => {
+        try {
+          const response = await getCategoryData({
+            variables: {
+              input: {
+                category_name: slug.toString()
+              }
+            }
+          });
+          
+          if (response.data) {
+            setCategoryData(response.data.getCategoryOne.category);
+            const description = JSON.parse(response.data.getCategoryOne.category.category_description);
+            const contentState = convertFromRaw(description);
+            const processedDescription = EditorState.createWithContent(contentState);
+            setEditorState(processedDescription);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      
+      fetchCategoryData();
+  }, []);
 
   const image_cloudinary_cloud_name = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
-  const [enabledIsAvailable, setenabledIsAvailable] = useState(false);
-  const [enabledIsParent, setenabledIsParent] = useState(false);
-  const [imageUrl, setImageUrl] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  /*image upload only possible it name and description has been written*/
-  const [publicId, setPublicId] = useState<string>('');
-  /*wheather to clear the image from localstorage or not*/
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [isSingleImage, setIsSIngleImage] = useState(false);
-
-  const [toggleUpladedImageName, setToggleUpladedImageName] = useState(false);
-  const [imagerequiredtoggle, setimagerequiredtoggle] = useState(false);
-  const [categoryImage, setCategoryImage] = useState<ImageData | null>(null);
-
-  /*Here to get the value from the drop down list*/
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [isvalidType, setIsValidType] = useState(true);
-
-  const [editorState, setEditorState] = useState(() =>
-    EditorState.createEmpty()
-    );
-
 
   const handleCategoryChange = (selectedCategory: string) => {
     setSelectedCategory(selectedCategory); // Update the state with the selected category
     console.log(selectedCategory, "here is the selected category")
   };
-
 
   useEffect(()=> {
     const categoryImage = localStorage.getItem('categoryImage')
@@ -114,8 +120,6 @@ if(data) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      category_name: "",
-      category_description: "",
     },
     mode: "onChange",
     reValidateMode: "onChange",
@@ -133,7 +137,7 @@ if(data) {
 
   const updateTextDescription = async (state: any) => {
     setEditorState(state);
-    };
+  };
 
   const [createCategory] = useMutation(CREATE_CATEGORY);
 
@@ -201,11 +205,8 @@ if(data) {
     }
   }
 
-
   /*Delete Image*/
   const [deleteImageGrapqhl] = useMutation(DELETE_IMAGE);
-
- 
 
   const deleteImage = async (url: string) => {
     const categoryImage = localStorage.getItem('categoryImage')
@@ -225,7 +226,6 @@ if(data) {
       }
   }
   }
-
 
   const imageLengthError = () => {
     const categoryImage = localStorage.getItem('categoryImage')
@@ -259,8 +259,8 @@ if(data) {
                 </label>
                 <input
                   type="text"
-                  value={categoryData && categoryData.category_name}
-                    className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  defaultValue={categoryData ? categoryData.category_name : ''}
+                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   {...register('category_name')} // Register the 'first_name' field here
                 />
                     {errors.category_name && (
@@ -273,17 +273,10 @@ if(data) {
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Category Description
                 </label>
-{/* 
-                <textarea 
-                  rows={4}
-                  placeholder="Category Description"
-                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  {...register('category_description')} // Register the 'first_name' field here
-                ></textarea> */}
                     <Controller
                     name="category_description"
                     control={control}
-                    defaultValue=""
+                    // defaultValue={categoryData ? categoryData.category_description : ''}
                     render={({ field: { onChange, value } }) => (
                       <Editor
                         editorState={editorState}
@@ -553,4 +546,4 @@ if(data) {
   );
 };
 
-export default AddCategory;
+export default EditCategory;

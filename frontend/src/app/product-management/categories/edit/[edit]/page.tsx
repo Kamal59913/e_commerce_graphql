@@ -1,11 +1,11 @@
 import React from 'react'
-import TableTwo from '@/components/Tables/TableTwo'
+import EditCategory from '@/components/Products-Management/EditCategory'
 import DefaultLayout from '@/components/Layouts/DefaultLayout'
 
 export default function page() {
   return (
     <DefaultLayout>
-    <TableTwo/>
+    <EditCategory/>
     </DefaultLayout>
   )
 }

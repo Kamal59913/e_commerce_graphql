@@ -32,7 +32,7 @@ const AddCategory: React.FC = () => {
 
   const [enabledIsAvailable, setenabledIsAvailable] = useState(false);
   const [enabledIsParent, setenabledIsParent] = useState(false);
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState<ImageData | null>(null);
   const [displayName, setDisplayName] = useState('');
   /*image upload only possible it name and description has been written*/
   const [publicId, setPublicId] = useState<string>('');
@@ -103,8 +103,8 @@ const AddCategory: React.FC = () => {
   useEffect(() => {
     setValue("isparent", enabledIsParent);
     setValue("isavailable", enabledIsAvailable);
-    if(imageUrl != '') {
-      setValue("category_image", imageUrl)
+    if(imageUrl?.url != '') {
+      setValue("category_image", imageUrl?.url)
       console.log(imageUrl, "here is the image url")
     }
   }, [enabledIsParent, enabledIsAvailable, setValue]);
@@ -149,7 +149,7 @@ const AddCategory: React.FC = () => {
       )
 
       if(submitResponse.data.addCategory.success == true) {
-        setImageUrl('')
+        setImageUrl(null)
         setCategoryImage(null)
         setToggleUpladedImageName(false)
         localStorage.removeItem('categoryImage')
@@ -313,7 +313,11 @@ const AddCategory: React.FC = () => {
                             displayName: info.original_filename
                           }))
                           setimagerequiredtoggle(false)
-                          setImageUrl(info.url);
+                          setImageUrl({
+                            url: info.url,
+                            publicId: info.public_id,
+                            displayName: info.original_filename
+                          });
                           setDisplayName(info.original_filename);
                           setPublicId(info.public_id)
                           setToggleUpladedImageName(true);

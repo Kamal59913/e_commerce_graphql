@@ -4,13 +4,21 @@ mutation GetCategoryOne($input: getCategoryOneInput) {
     category {
       category_name
       category_description
-      category_image
+      category_image {
+        displayName
+        url
+        publicId
+      }
       is_available
       is_parent
       parent {
         category_name
         category_description
-        category_image
+        category_image {
+          displayName
+          url
+          publicId
+        }
         is_available
         is_parent
       }
