@@ -251,14 +251,7 @@ const AddCategory: React.FC = () => {
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Category Description
                 </label>
-{/* 
-                <textarea 
-                  rows={4}
-                  placeholder="Category Description"
-                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  {...register('category_description')} // Register the 'first_name' field here
-                ></textarea> */}
-                    <Controller
+                  <Controller
                     name="category_description"
                     control={control}
                     defaultValue=""
@@ -349,7 +342,7 @@ const AddCategory: React.FC = () => {
               </CldUploadWidget>        
               </div>    
               {categoryImage && 
-                  <div className="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
+                  <div className="grid w-full max-w-7xl items-center space-y-4 px-2 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
                   <div className="relative overflow-hidden rounded-md aspect-w-8 aspect-h-6 md:aspect-w-3 md:aspect-h-6 lg:aspect-w-20 lg:aspect-h-12 xl:aspect-h-18">
 
                     <img
@@ -521,8 +514,7 @@ const AddCategory: React.FC = () => {
     <label className="block text-sm font-medium text-black dark:text-white">
         Select Parent Category
     </label>
-  {/* <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/> */}
-    
+  <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/>
     <button type="submit"
             className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 w-64 md:w-400">
       Save

@@ -7,8 +7,6 @@ const getCategoryOneResolver = async (parent, args, context) => {
     /*check if username or email already exists in the database*/
    const category = await CategoryModel.findOne({category_name})
 
-   console.log(category,"here is the user details")
-
    if(!category) {
     return {
       errors: [

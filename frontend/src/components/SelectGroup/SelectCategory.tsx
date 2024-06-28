@@ -24,7 +24,7 @@ const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategor
 
 
   useEffect(() => {
-    if (data && data.getCategory) {
+    if (data && data.getCategory.category) {
       const transformedData = data.getCategory.category.map((category: any) => ({
         value: category.category_name,
         label: category.category_name,
@@ -41,11 +41,15 @@ const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategor
 
       let options = [];
       if (data) {
-        console.log("another set of data", data)
-        options = data.getCategory.category.map((category: any) => ({
-          value: category.category_name,
-          label: category.category_name,
-        }));
+        try {
+          options = data.getCategory.category.map((category: any) => ({
+            value: category.category_name,
+            label: category.category_name,
+          }));
+        } catch (error) {
+          console.log(error)
+        }
+      
       }
 
 
@@ -72,6 +76,7 @@ const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategor
           name="color"
           options={categoryOptions}
           onChange={handleCategoryChange}
+          noOptionsMessage={() => "No Options"}
        />
       </div>
     </div>

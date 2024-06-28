@@ -9,6 +9,8 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useRouter } from "next/navigation";
+import slugify from 'slugify';
+
 
 interface ImageObject {
   displayName: string,
@@ -27,12 +29,15 @@ interface Category {
 
 
 const CategoryTable = () => {
+  const { data, loading, error } = useQuery(GET_CATEGORIES, {
+    fetchPolicy: "network-only", 
+  });
   const router = useRouter();
-  const { data, loading, error } = useQuery(GET_CATEGORIES);
+
   const [categoryData, setCategoryData] = useState<Category[]>([]);
 
   useEffect(() => {
-    if (data && data.getCategory) {
+    if (data && data.getCategory.category) {
       const processedCategories = data.getCategory.category.map((category: { category_description: string }) => {
         try { 
           const xyz = JSON.parse(category.category_description);
@@ -62,7 +67,10 @@ const CategoryTable = () => {
   };
 
   const editPageRedirect = (slug: string) => {
-    router.push(`/product-management/categories/edit/${slug}`)
+    
+    const encodedSlug = slugify(slug, { lower: true, strict: true });
+
+    router.push(`/product-management/categories/edit/${encodedSlug}`)
   }
 
   useEffect(()=> {
@@ -71,7 +79,7 @@ const CategoryTable = () => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
-
+  if (!data) return <p>Loading...</p>
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1 xl: mt-10">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">

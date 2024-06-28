@@ -20,6 +20,7 @@ import { FormValues } from "./types";
 import { formSchema } from "./SchemaValidation";
 import GET_CATEGORY_ONE from "../../graphql/mutations/GET_CATEGORY_ONE.graphql"
 import { useParams } from "next/navigation";
+import { AiOutlineCloudUpload } from "react-icons/ai";
 
 
 interface ImageData {
@@ -32,12 +33,17 @@ const EditCategory: React.FC = () => {
   const router = useRouter()
 
   const params = useParams()
-const slug = params['edit']
+const slug = params['edit'].toString()
+
+const decodedSlug = decodeURIComponent(slug as string).replace(/-/g, ' ');
+
+console.log("Here is the decoded slug", decodedSlug)
+
 const [categoryData, setCategoryData] = useState<any>(null);
 const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
 const [enabledIsAvailable, setenabledIsAvailable] = useState(false);
 const [enabledIsParent, setenabledIsParent] = useState(false);
-const [imageUrl, setImageUrl] = useState('');
+const [imageUrl, setImageUrl] = useState<ImageData | null>(null);
 const [displayName, setDisplayName] = useState('');
 /*image upload only possible it name and description has been written*/
 const [publicId, setPublicId] = useState<string>('');
@@ -60,18 +66,22 @@ useEffect(() => {
           const response = await getCategoryData({
             variables: {
               input: {
-                category_name: slug.toString()
+                category_name: decodedSlug
               }
             }
           });
-          
           if (response.data) {
+            console.log("data category data", response.data.getCategoryOne.category.category_image)
+            setCategoryImage(response.data.getCategoryOne.category.category_image)
             setCategoryData(response.data.getCategoryOne.category);
-            const description = JSON.parse(response.data.getCategoryOne.category.category_description);
+            setenabledIsParent(response.data.getCategoryOne.category.is_parent)
+            setenabledIsParent(response.data.getCategoryOne.category.is_parent)
+            setenabledIsAvailable(response.data.getCategoryData.category.is_available)
+            const description = await JSON.parse(response.data.getCategoryOne.category.category_description);
             const contentState = convertFromRaw(description);
             const processedDescription = EditorState.createWithContent(contentState);
             setEditorState(processedDescription);
-          }
+          } 
         } catch (error) {
           console.error(error);
         }
@@ -80,16 +90,15 @@ useEffect(() => {
       fetchCategoryData();
   }, []);
 
-  const image_cloudinary_cloud_name = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
   const handleCategoryChange = (selectedCategory: string) => {
     setSelectedCategory(selectedCategory); // Update the state with the selected category
     console.log(selectedCategory, "here is the selected category")
   };
 
+  console.log(categoryImage, "Here is the category image")
+
   useEffect(()=> {
     const categoryImage = localStorage.getItem('categoryImage')
-
        if(categoryImage) {
         const parsedImages: { url: string; publicId: string; displayName: string; } = JSON.parse(categoryImage);
         deleteImage(parsedImages.publicId)
@@ -110,6 +119,11 @@ useEffect(() => {
     setIsDisabled(!isDisabled)
   }, [enabledIsParent])
 
+
+useEffect(()=> {
+  console.log(imageUrl, "Here is the image details")
+},[imageUrl])
+
   const {
     control,
     handleSubmit,
@@ -129,8 +143,8 @@ useEffect(() => {
   useEffect(() => {
     setValue("isparent", enabledIsParent);
     setValue("isavailable", enabledIsAvailable);
-    if(imageUrl != '') {
-      setValue("category_image", imageUrl)
+    if(imageUrl?.url != '') {
+      setValue("category_image", imageUrl?.url)
       console.log(imageUrl, "here is the image url")
     }
   }, [enabledIsParent, enabledIsAvailable, setValue]);
@@ -175,7 +189,7 @@ useEffect(() => {
       )
 
       if(submitResponse.data.addCategory.success == true) {
-        setImageUrl('')
+        setImageUrl(null)
         setCategoryImage(null)
         setToggleUpladedImageName(false)
         localStorage.removeItem('categoryImage')
@@ -245,7 +259,9 @@ useEffect(() => {
 
   }
   return (
+    <>  
     <div>
+      
     <ToastContainer/>
       <Breadcrumb pageName="Edit Category" />
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 xl:mb-40 lg:mb-36 md:mb-30 mb-40 bg-slate-400">
@@ -276,7 +292,6 @@ useEffect(() => {
                     <Controller
                     name="category_description"
                     control={control}
-                    // defaultValue={categoryData ? categoryData.category_description : ''}
                     render={({ field: { onChange, value } }) => (
                       <Editor
                         editorState={editorState}
@@ -297,7 +312,23 @@ useEffect(() => {
                     </p>
                   )}              
               </div>
-              <div className="flex">
+              <label className="block text-sm font-medium text-black dark:text-white">
+                  Category Image
+                </label>
+                {categoryImage && 
+                  <div className="grid w-full max-w-7xl items-center space-y-4 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
+                  <div className="relative overflow-hidden rounded-md aspect-w-8 aspect-h-6 md:aspect-w-3 md:aspect-h-6 lg:aspect-w-20 lg:aspect-h-12 xl:aspect-h-18">
+
+                    <img
+                      src={categoryImage.url}
+                      alt={categoryImage.displayName}
+                      className="object-cover w-full h-full"
+                    />  
+                    <div className="font-bold italic text-sm">{categoryImage.displayName}</div> 
+                </div>
+                </div>
+                }
+              <div className="flex gap-10">
               <CldUploadWidget uploadPreset="cloudinary_image_upload"
               >
                     {({ open, results}) => {
@@ -328,19 +359,24 @@ useEffect(() => {
                             displayName: info.original_filename
                           }))
                           setimagerequiredtoggle(false)
-                          setImageUrl(info.url);
-                          setDisplayName(info.original_filename);
+                          setImageUrl({
+                            url: info.url,
+                            publicId: info.public_id,
+                            displayName: info.original_filename
+                          });                          setDisplayName(info.original_filename);
                           setPublicId(info.public_id)
                           setToggleUpladedImageName(true);
                         }
                       }, [results]);
     
                     
-                    return (
-                        <button className=
-                        "w-40 text-black border border-slate-600 bg-white hover:bg-[#f0f0f0] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white focus:outline-none dark:focus:ring-blue-800" 
-                        
-                        onClick={async (e) => 
+                    return (                 
+                        <div className="flex gap-20">
+            <div className="relative group inline-block">
+                <AiOutlineCloudUpload
+                size={34}
+                style={{color: 'blue', cursor:'pointer'}}
+                          onClick={async (e) => 
                           {
                           e.preventDefault()
                           const valid = await trigger(["category_name", "category_description"]);
@@ -350,42 +386,36 @@ useEffect(() => {
                             toast.error("Please fill out the category name and description before uploading an image", {
                               position: "top-center",
                               toastId: "randomIdFormValidation"
-                            });                          
-                            }}} >
-                              Upload Image
-                        </button>
+                            }); 
+                          }
+                        }
+                      }   
+                />
+                <div className="ml-14 absolute z-10 left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-32 bg-slate-500 text-white text-center text-xs rounded py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Replace Image
+                </div>
+            </div>
+                        </div>
                     )
                   }
                 }
-              </CldUploadWidget>        
-              </div>    
-              {categoryImage && 
-                  <div className="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
-                  <div className="relative overflow-hidden rounded-md aspect-w-8 aspect-h-6 md:aspect-w-3 md:aspect-h-6 lg:aspect-w-20 lg:aspect-h-12 xl:aspect-h-18">
-
-                    <img
-                      src={categoryImage.url}
-                      alt={categoryImage.displayName}
-                      className="object-cover w-full h-full"
-                    />  
-                    <div className="font-bold italic text-sm">{categoryImage.displayName}</div> 
-                    <div className="relative group inline-block">
+              </CldUploadWidget>       
+              <div className="relative group inline-block">
                 <CiSquareRemove 
-                size={24} 
+                size={34} 
                 style={{color: 'red', cursor:'pointer'}}
                 onClick={(e)=> {
                 e.preventDefault()
                 setToggleUpladedImageName(false)
-                deleteImage(categoryImage.publicId)}
+                deleteImage(categoryData?.category_image?.publicId.publicId)}
               }
                 /> 
                 <div className="ml-14 absolute z-10 left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-32 bg-red text-white text-center text-xs rounded py-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     Remove Image
                 </div>
             </div>
-                </div>
-                </div>
-                }
+
+              </div>    
 
               {(imagerequiredtoggle && isvalidType) &&(
                     <p className='text-[#FF5733] text-xs  pt-2'>
@@ -532,7 +562,7 @@ useEffect(() => {
     <label className="block text-sm font-medium text-black dark:text-white">
         Select Parent Category
     </label>
-  {/* <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/> */}
+  <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/>
     
     <button type="submit"
             className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 w-64 md:w-400">
@@ -542,7 +572,8 @@ useEffect(() => {
           </div>
         </div>
       </div>
-    </div>
+    </div></>
+  
   );
 };
 
