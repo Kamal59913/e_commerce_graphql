@@ -8,6 +8,10 @@ import getCategoryResponseType from "./types/getCategoryResponseType";
 import { getCategoryOneInput } from "./types/getCategoryOneInput";
 import getCategoryOneResolver from "./resolvers/getCategoryOneResolver";
 import getCategoryOneResponseType from "./types/getCategoryOneResponseType";
+import UpdateCategoryResolver from "./resolvers/UpdateCategoryResolver";
+import { CategoryEditInputType } from "./types/CATEGORY_EDIT_INPUT_TYPE ";
+import UpdateResponseType from "./types/UpdateResponseType";
+import DeleteCategoryResolver from "./resolvers/DeleteCategory";
 
 export const getCategoryQuery = {
     getCategory: {
@@ -15,7 +19,6 @@ export const getCategoryQuery = {
         resolve: getCategoryResolver
     }
 }
-
 
 export const categoryMutation = {
     addCategory: {
@@ -27,7 +30,6 @@ export const categoryMutation = {
         },
         resolve: CreateCategoryResolver
     },
-
     deleteImage : {
         type: ResponseType,
         args: {
@@ -45,5 +47,23 @@ export const categoryMutation = {
             }
         },
         resolve: getCategoryOneResolver
+    },
+    updateCategory: {
+        type: UpdateResponseType,
+        args: {
+            input: {
+                type: CategoryEditInputType
+            }
+        },
+        resolve: UpdateCategoryResolver
+    },
+    deleteCategory: {
+        type: ResponseType,
+        args: {
+            input: {
+                type: getCategoryOneInput
+            }
+        },
+        resolve: DeleteCategoryResolver
     }
 }

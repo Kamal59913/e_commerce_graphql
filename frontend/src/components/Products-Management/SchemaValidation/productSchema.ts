@@ -2,12 +2,12 @@ import * as Yup from 'yup';
 
 export const productSchema = Yup.object().shape({
   product_name: Yup.string()
-    .required('Product name is required')
+    // .required('Product name is required')
     .min(3, 'Product name must be at least 3 characters long')
     .max(100, 'Product name must be less than 100 characters'),
   
   product_description: Yup.string()
-    .required('Product description is required')
+    // .required('Product description is required')
     .min(10, 'Product description must be at least 10 characters long')
     .max(1000, 'Product description must be less than 1000 characters'),
   

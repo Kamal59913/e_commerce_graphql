@@ -2,6 +2,7 @@ query GetCategory {
   getCategory {
     success
     category {
+      _id
       category_name
       category_description
       category_image {
@@ -12,6 +13,7 @@ query GetCategory {
       is_available
       is_parent
       parent {
+        _id
         category_name
         category_description
         category_image {
@@ -28,4 +30,4 @@ query GetCategory {
       code
     }
   }
-} 
+}

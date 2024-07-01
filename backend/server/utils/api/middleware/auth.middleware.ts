@@ -10,7 +10,7 @@ try {
 
             const SECRET_KEY:any = process.env.TOKEN_SECRET;
 
-            const token = req.cookies?.AccessToken || req.header
+            const token = req.cookies?.token || req.header
             ("Authorization")?.replace("Bearer ","")
             console.log(token, "Here have revieved the token")
             if(!token) {

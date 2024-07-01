@@ -3,6 +3,6 @@ import { GraphQLBoolean, GraphQLInputObjectType, GraphQLNonNull, GraphQLObjectTy
 export const getCategoryOneInput = new GraphQLInputObjectType({
     name: 'getCategoryOneInput',
     fields: () => ({
-      category_name: {type: new GraphQLNonNull(GraphQLString)},
+      _id: {type: new GraphQLNonNull(GraphQLString)},
     }) 
   })

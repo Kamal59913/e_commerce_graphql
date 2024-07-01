@@ -1,0 +1,9 @@
+mutation DeleteCategory($input: getCategoryOneInput) {
+  deleteCategory(input: $input) {
+    success
+    errors {
+      message
+      code
+    }
+  }
+}

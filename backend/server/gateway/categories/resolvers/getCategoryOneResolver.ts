@@ -3,9 +3,9 @@ import CategoryModel from "@/db/models/categories_model/categories.model";
 
 const getCategoryOneResolver = async (parent, args, context) => {
   try {
-    const { category_name } = args.input;
+    const { _id } = args.input;
     /*check if username or email already exists in the database*/
-   const category = await CategoryModel.findOne({category_name})
+   const category = await CategoryModel.findById(_id)
 
    if(!category) {
     return {

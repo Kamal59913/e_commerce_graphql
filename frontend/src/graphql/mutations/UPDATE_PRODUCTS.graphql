@@ -1,5 +1,5 @@
-mutation GetCategoryOne($input: getCategoryOneInput) {
-  getCategoryOne(input: $input) {
+mutation UpdateCategory($input: CategoryEditInputType) {
+  updateCategory(input: $input) {
     success
     category {
       _id
@@ -23,19 +23,6 @@ mutation GetCategoryOne($input: getCategoryOneInput) {
         }
         is_available
         is_parent
-        parent {
-          _id
-          category_name
-          category_description
-          category_image {
-            displayName
-            url
-            publicId
-          }
-          is_available
-          is_parent
-
-        }
       }
     }
     errors {

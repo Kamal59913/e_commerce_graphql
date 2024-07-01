@@ -3,11 +3,11 @@ Logic creation of the edit form image specifically.
 
 Work Flow(One thing at a time)
 
-Task 1
+Task 1   (Done)
 ------
 1.   a toggler state to show if image exists or not
 
-Task 2
+Task 2   (Done)
 ------
 2.   if image exists:
 	show the image
@@ -16,20 +16,24 @@ Task 2
 	show a random image
 	make the toggler false
 
-Task 3
+Task 3 
 ------
+
+Need to create Update Categories API For backend initially
 3.  while image exists:
 	a. If do not want to replace, then the same data will be submitted again
 	how?
-	store the image in a state, send that state back.
+	store the image in a state, send that state back. (Done)
 	
-	b. Delete Logic: 
-		1. store the image in state initially, as mentioned
+	b. Delete Logic: (Done)
+		1. store the image in state initially, 
+		==> Create a toggling state to to know whether to delete the image or not delete the image
 		2. on deleting, the state will be null.
 		3. the image will be deleted from cloudinary.
 		4. the image will be deleted from the database.
 		
-	d. Replace Logic:
+	d. Replace Logic: (Working On)
+	A replace button --> upload button will show
 		Definition: new data will replace the previous one
 		1. replace the existing image state with new image, just change the useState hook Value
 		2. delete the older one from the database, and from the cloudinary.
@@ -50,4 +54,7 @@ Will make this logic once the Phase 1 Process completes
 Process:
 --------
 Phase 1: Analyse the current code and figure how all the image logic is being handled.
+Checking the image process how it is getting fixed
+basically the same image should be replaced
+
 Phase 2: Remove the necessary portion or change it with your new code.

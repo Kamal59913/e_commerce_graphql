@@ -1,7 +1,7 @@
 "use client"
 import { BRAND } from "@/types/brand";
 import Image from "next/image";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_QUERY.graphql';
 import { useEffect, useState } from "react";
 import { Editor, EditorState, convertFromRaw } from 'draft-js';
@@ -10,7 +10,28 @@ import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 import slugify from 'slugify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import Button from '@mui/material/Button';
+import DELETE_CATEGORY from '../../graphql/mutations/DELETE_CATEGORY.graphql'
+
+
+
+const style = { 
+  position: 'fixed' as 'fixed',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+  zIndex: 9999, // Add zIndex here
+};
 
 interface ImageObject {
   displayName: string,
@@ -19,6 +40,7 @@ interface ImageObject {
 }
 
 interface Category {
+  _id: string;
   category_name: string;
   category_image: ImageObject;
   category_description: EditorState;
@@ -27,14 +49,30 @@ interface Category {
   parent?: { category_name: string } | null;
 }
 
-
 const CategoryTable = () => {
   const { data, loading, error } = useQuery(GET_CATEGORIES, {
     fetchPolicy: "network-only", 
   });
+
+
+  const [deleteCategory] = useMutation(DELETE_CATEGORY)
   const router = useRouter();
 
   const [categoryData, setCategoryData] = useState<Category[]>([]);
+  const [open, setOpen] = useState(false);
+  const [categorySelected, setCategorySelected] = useState('')
+  const [categoryIdSelected, setCategoryIdSelected] = useState('')
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleOpen = (category_id: string, category_name: string) => {
+    setOpen(true);
+    setCategorySelected(category_name)
+    setCategoryIdSelected(category_id)
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
 
   useEffect(() => {
     if (data && data.getCategory.category) {
@@ -58,7 +96,29 @@ const CategoryTable = () => {
       });
       setCategoryData(processedCategories);
     }
-  }, [data]);
+  }, [data, deleteLoading]);
+
+
+
+
+  const deletetheCategory = async () => {
+    console.log("reached here on the delete logic")
+    const deleteResponse  = await deleteCategory({
+      variables: {
+        input: {
+          _id: categoryIdSelected
+        }
+      }
+    })
+    if(deleteResponse.data.deleteCategory.success == true) {
+        toast.success("Successfully Deleted the categoty", {
+          position: "top-center"
+        })
+        handleClose()
+        setCategoryData(prevData => prevData.filter(category => category._id !== categoryIdSelected));
+    }
+    console.log(deleteResponse, "Here is the delete response")
+  }
 
   const onEditorStateChange = (index: number, newEditorState: any) => {
     const updatedCategoryData = [...categoryData];
@@ -77,10 +137,37 @@ const CategoryTable = () => {
     console.log(categoryData, "Here is the category data")
   },[categoryData])
 
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
   if (!data) return <p>Loading...</p>
+
+  
+
   return (
+    <>
+    <ToastContainer/>
+       <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
+      >
+        <Box sx={{ ...style, width: 400 }}>
+          <h2 className="text-lg font-semibold">Delete Category</h2>
+          <p>{`${categorySelected}`}</p>
+          <p id="child-modal-description mt-4">
+              Are you sure you want to delete this category.
+          </p>
+          <button type="button" className="mt-2 focus:outline-none text-white bg-[#D2122E] hover:bg-[#D2122E] focus:ring-4 focus:ring-[#D2122E] font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-[#D2122E"
+          onClick={(e)=> {
+            e.preventDefault()
+            deletetheCategory()
+          }
+          }
+          > Yes Delete! </button>
+          </Box>
+      </Modal>
     <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1 xl: mt-10">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
         Categories
@@ -172,18 +259,19 @@ const CategoryTable = () => {
             <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5 col-span-1 col-start-11">
               <div className="mt-2 flex cursor-pointer gap-1"> 
                   <CiEdit className="h-[24px] w-[24px] hover:text-[#355e3b]"
-                  onClick={()=> editPageRedirect(brand.category_name)}
+                  onClick={()=> editPageRedirect(brand._id)}
                   /> 
                   <span className="ml-2"> </span>
-                  <RiDeleteBin6Line className="h-[20px] w-[24px] hover:text-red"/>
+                  <RiDeleteBin6Line className="h-[20px] w-[24px] hover:text-red"
+                  onClick={()=> {handleOpen(brand._id, brand.category_name)}}
+                  />
               </div>
             </div>
-
-
           </div>
         ))}
       </div>
     </div>
+    </>
   );
 };
 

@@ -144,6 +144,7 @@ const AddCategory: React.FC = () => {
           }
         }
       })
+      
       console.log(submitResponse.data.addCategory
         , "new response"
       )
