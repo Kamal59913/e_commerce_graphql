@@ -44,14 +44,11 @@ const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
 const [enabledIsAvailable, setenabledIsAvailable] = useState(false);
 const [enabledIsParent, setenabledIsParent] = useState(false);
 const [imageUrl, setImageUrl] = useState<ImageData | null>(null);
-const [displayName, setDisplayName] = useState('');
 /*image upload only possible it name and description has been written*/
-const [publicId, setPublicId] = useState<string>('');
 /*wheather to clear the image from localstorage or not*/
 const [isDisabled, setIsDisabled] = useState(false);
 const [isSingleImage, setIsSIngleImage] = useState(false);
 
-const [toggleUpladedImageName, setToggleUpladedImageName] = useState(false);
 const [imagerequiredtoggle, setimagerequiredtoggle] = useState(false);
 const [categoryImage, setCategoryImage] = useState<ImageData | null>(null);
 
@@ -59,6 +56,10 @@ const [categoryImage, setCategoryImage] = useState<ImageData | null>(null);
 const [selectedCategory, setSelectedCategory] = useState<string>("");
 const [isvalidType, setIsValidType] = useState(true);
 const [getCategoryData, {data, loading, error}] = useMutation(GET_CATEGORY_ONE)
+
+
+/*State for image toggle change*/
+const [isImageExist, setIsImageExists] = useState(false);
 
 useEffect(() => {
       const fetchCategoryData = async () => {
@@ -71,12 +72,14 @@ useEffect(() => {
             }
           });
           if (response.data) {
-            console.log("data category data", response.data.getCategoryOne.category.category_image)
-            setCategoryImage(response.data.getCategoryOne.category.category_image)
-            setCategoryData(response.data.getCategoryOne.category);
-            setenabledIsParent(response.data.getCategoryOne.category.is_parent)
-            setenabledIsParent(response.data.getCategoryOne.category.is_parent)
-            setenabledIsAvailable(response.data.getCategoryData.category.is_available)
+            console.log(response.data.getCategoryOne.category.is_available)
+            if(response.data.getCategoryOne.category.category_image) {
+              setIsImageExists(true);
+            }
+            setCategoryImage(response.data.getCategoryOne.category.category_image) 
+            setCategoryData(response.data.getCategoryOne.category); 
+            setenabledIsParent(response.data.getCategoryOne.category.is_parent) 
+            setenabledIsAvailable(response.data.getCategoryOne.category.is_available)
             const description = await JSON.parse(response.data.getCategoryOne.category.category_description);
             const contentState = convertFromRaw(description);
             const processedDescription = EditorState.createWithContent(contentState);
@@ -90,30 +93,26 @@ useEffect(() => {
       fetchCategoryData();
   }, []);
 
+
   const handleCategoryChange = (selectedCategory: string) => {
-    setSelectedCategory(selectedCategory); // Update the state with the selected category
+    setSelectedCategory(selectedCategory);
     console.log(selectedCategory, "here is the selected category")
   };
 
-  console.log(categoryImage, "Here is the category image")
-
+{
+/***All the localstorage image logic***/
   useEffect(()=> {
     const categoryImage = localStorage.getItem('categoryImage')
        if(categoryImage) {
         const parsedImages: { url: string; publicId: string; displayName: string; } = JSON.parse(categoryImage);
         deleteImage(parsedImages.publicId)
        }
-
   },[])
-  useEffect(()=> {
-    const categoryImage = localStorage.getItem('categoryImage')
-      if(!isvalidType) {
-        if(categoryImage) {
-          const parsedImages: { url: string; publicId: string; displayName: string; } = JSON.parse(categoryImage);
-          deleteImage(parsedImages.publicId)
-         }
-      }
-  },[isvalidType])
+}
+/***################END OF LOCAL STORAGE IMAGE LOGIC####################
+ * 
+ ***/
+
 
   useEffect(()=> {
     setIsDisabled(!isDisabled)
@@ -191,7 +190,6 @@ useEffect(()=> {
       if(submitResponse.data.addCategory.success == true) {
         setImageUrl(null)
         setCategoryImage(null)
-        setToggleUpladedImageName(false)
         localStorage.removeItem('categoryImage')
         toast.success("Successfully added category", {
           position: "top-center",
@@ -219,7 +217,7 @@ useEffect(()=> {
     }
   }
 
-  /*Delete Image*/
+  /*****Cloudinary Delete Image Logic Including Other Image Logic ******/
   const [deleteImageGrapqhl] = useMutation(DELETE_IMAGE);
 
   const deleteImage = async (url: string) => {
@@ -258,6 +256,9 @@ useEffect(()=> {
       }
 
   }
+/******* ENDING OF IMAGE LOGICS*/
+
+
   return (
     <>  
     <div>
@@ -315,16 +316,25 @@ useEffect(()=> {
               <label className="block text-sm font-medium text-black dark:text-white">
                   Category Image
                 </label>
-                {categoryImage && 
+                {isImageExist ?
                   <div className="grid w-full max-w-7xl items-center space-y-4 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
                   <div className="relative overflow-hidden rounded-md aspect-w-8 aspect-h-6 md:aspect-w-3 md:aspect-h-6 lg:aspect-w-20 lg:aspect-h-12 xl:aspect-h-18">
 
                     <img
-                      src={categoryImage.url}
-                      alt={categoryImage.displayName}
+                      src={categoryImage?.url}
+                      alt={categoryImage?.displayName}
                       className="object-cover w-full h-full"
                     />  
-                    <div className="font-bold italic text-sm">{categoryImage.displayName}</div> 
+                    <div className="font-bold italic text-sm">{categoryImage?.displayName}</div> 
+                </div>
+                </div> :  <div className="grid w-full max-w-7xl items-center space-y-4 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
+                  <div className="relative overflow-hidden rounded-md aspect-w-8 aspect-h-6 md:aspect-w-3 md:aspect-h-6 lg:aspect-w-20 lg:aspect-h-12 xl:aspect-h-18">
+
+                    <img
+                      src="https://asset.cloudinary.com/dkoh04jmq/b5aefe8a37e4c4a69107d8d85a4a88c9"
+                      alt="No Image"
+                      className="object-cover w-full h-full"
+                    />  
                 </div>
                 </div>
                 }
@@ -363,9 +373,7 @@ useEffect(()=> {
                             url: info.url,
                             publicId: info.public_id,
                             displayName: info.original_filename
-                          });                          setDisplayName(info.original_filename);
-                          setPublicId(info.public_id)
-                          setToggleUpladedImageName(true);
+                          });                         
                         }
                       }, [results]);
     
@@ -406,7 +414,6 @@ useEffect(()=> {
                 style={{color: 'red', cursor:'pointer'}}
                 onClick={(e)=> {
                 e.preventDefault()
-                setToggleUpladedImageName(false)
                 deleteImage(categoryData?.category_image?.publicId.publicId)}
               }
                 /> 
