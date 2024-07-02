@@ -57,8 +57,7 @@ const AddCategory: React.FC = () => {
     setSelectedCategory(selectedCategory); // Update the state with the selected category
     console.log(selectedCategory, "here is the selected category")
   };
-
-
+  
   useEffect(()=> {
     const categoryImage = localStorage.getItem('categoryImage')
 
@@ -138,8 +137,8 @@ const AddCategory: React.FC = () => {
             category_name: values.category_name,
             category_description: description_categories,
             category_image: imageUrl,
-            is_available: enabledIsParent,
-            is_parent: enabledIsAvailable,
+            is_available: enabledIsAvailable,
+            is_parent: enabledIsParent,
             parent: selectedCategory
           }
         }

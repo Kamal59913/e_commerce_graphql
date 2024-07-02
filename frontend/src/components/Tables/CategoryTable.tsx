@@ -27,10 +27,10 @@ const style = {
   transform: 'translate(-50%, -50%)',
   bgcolor: 'background.paper',
   boxShadow: 24,
-  pt: 2,
   px: 4,
-  pb: 3,
+  py: 4,
   zIndex: 9999, // Add zIndex here
+  border: 'none'
 };
 
 interface ImageObject {
@@ -100,7 +100,6 @@ const CategoryTable = () => {
 
 
 
-
   const deletetheCategory = async () => {
     console.log("reached here on the delete logic")
     const deleteResponse  = await deleteCategory({
@@ -145,7 +144,7 @@ const CategoryTable = () => {
   
 
   return (
-    <>
+    <div className="">
     <ToastContainer/>
        <Modal
         open={open}
@@ -153,22 +152,35 @@ const CategoryTable = () => {
         aria-labelledby="child-modal-title"
         aria-describedby="child-modal-description"
       >
-        <Box sx={{ ...style, width: 400 }}>
-          <h2 className="text-lg font-semibold">Delete Category</h2>
-          <p>{`${categorySelected}`}</p>
-          <p id="child-modal-description mt-4">
-              Are you sure you want to delete this category.
+        <Box sx={{ ...style, width: 400}}>
+          <div className="mb-2"><span className="text-lg font-semibold">Delete Category </span> <span className="font-semibold italic"> {`${categorySelected}`} </span></div>
+          <p id="child-modal-description">
+              Sure want to delete !
           </p>
-          <button type="button" className="mt-2 focus:outline-none text-white bg-[#D2122E] hover:bg-[#D2122E] focus:ring-4 focus:ring-[#D2122E] font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-[#D2122E"
+          <button type="button" className="mt-4 focus:outline-none text-white bg-[#D2122E] hover:bg-[#D2122E] focus:ring-4 focus:ring-[#D2122E] font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-[#D2122E"
           onClick={(e)=> {
             e.preventDefault()
             deletetheCategory()
           }
           }
           > Yes Delete! </button>
+
+
+<Button 
+// type="button" 
+// className="mt-4 ml-5 focus:outline-none text-white bg-[#D2122E] hover:bg-[#D2122E] focus:ring-4 focus:ring-[#D2122E] font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-[#D2122E]"
+variant="outlined"
+onClick={(e)=> {
+            e.preventDefault()
+            handleClose()
+          }
+          }
+          > Cancel </Button>
+
+
           </Box>
       </Modal>
-    <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1 xl: mt-10">
+    <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1 ">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
         Categories
       </h4>
@@ -187,7 +199,7 @@ const CategoryTable = () => {
           </div>
           <div className="p-2.5 xl:py-5 col-start-7">
             <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
-              Is Available
+              Availability
             </h5>
           </div>
           <div className="hidden p-2.5 text-center sm:block xl:py-5 w-26 col-start-8">
@@ -205,7 +217,8 @@ const CategoryTable = () => {
             </h5>
           </div>
         </div>
-
+        
+        <div className="overflow-auto max-h-[500px] xl:max-h-[640px]">
         {categoryData.map((brand: Category, index: number) => (
           <div
             className={`grid grid-cols-12 sm:grid-cols-11 gap-0 ${
@@ -216,18 +229,20 @@ const CategoryTable = () => {
             key={index}
           >
             <div className="relative items-center gap-3 p-2.5 xl:p-5 col-span-3">
-              <div className="flex-shrink-0">
-                <img
-                  src={brand.category_image?.url}
-                  alt="Brand"
-                  className="h-36 mb-4"
-                />
-              </div>
               <div>
                 <p className="font-bold text-black dark:text-white sm:block">
                   {brand.category_name} 
                 </p>
               </div>
+
+              <div className="flex-shrink-0">
+                <img
+                  src={brand.category_image?.url}
+                  alt="Brand"
+                  className="h-36 my-2"
+                />
+              </div>
+           
             </div>
             <div className="flex items-center p-2.5 xl:p-5 col-span-3 col-start-4">
               <Editor
@@ -269,9 +284,10 @@ const CategoryTable = () => {
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
-    </>
+    </div>
   );
 };
 

@@ -8,8 +8,7 @@ export const formSchema = Yup.object().shape({
   
   category_description: Yup.string()
     .required('Category description is required')
-    .min(10, 'Category description must be at least 10 characters long')
-    .max(500, 'Category description must be less than 500 characters'),
+    .min(10, 'Category description must be at least 10 characters long'),
   
   category_image: Yup.string(),
   

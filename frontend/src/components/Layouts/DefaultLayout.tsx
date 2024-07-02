@@ -29,7 +29,7 @@ export default function DefaultLayout({
           {/* <!-- ===== Header End ===== --> */}
 
           {/* <!-- ===== Main Content Start ===== --> */}
-          <main className="dark:bg-slate-800">
+          <main className="dark:bg-slate-800 overflow-hidden h-screen">
             <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
               {children}
             </div>

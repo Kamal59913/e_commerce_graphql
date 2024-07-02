@@ -2,7 +2,6 @@ import CategoryModel from "@/db/models/categories_model/categories.model";
 
 const CreateCategoryResolver = async (parent, args, context) => {
 
-
   try {
     const {category_name, 
       category_description, 

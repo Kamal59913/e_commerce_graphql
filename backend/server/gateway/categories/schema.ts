@@ -12,6 +12,7 @@ import UpdateCategoryResolver from "./resolvers/UpdateCategoryResolver";
 import { CategoryEditInputType } from "./types/CATEGORY_EDIT_INPUT_TYPE ";
 import UpdateResponseType from "./types/UpdateResponseType";
 import DeleteCategoryResolver from "./resolvers/DeleteCategory";
+import getCategoryNoCurrentResolver from "./resolvers/GetWithoutCurrentCategory";
 
 export const getCategoryQuery = {
     getCategory: {
@@ -65,5 +66,14 @@ export const categoryMutation = {
             }
         },
         resolve: DeleteCategoryResolver
+    },
+    getCategoryExcludingCurrent: {
+        type: getCategoryResponseType,
+        args: {
+            input: {
+                type: getCategoryOneInput
+            }
+        },
+        resolve: getCategoryNoCurrentResolver
     }
 }

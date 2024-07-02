@@ -23,6 +23,7 @@
   import { AiOutlineCloudUpload } from "react-icons/ai";
   import { cleanObject } from "../../../utils/removeTypeName";
   import { CiUndo } from "react-icons/ci";
+  import Button from '@mui/material/Button';
 
 
   interface ImageData {
@@ -64,9 +65,21 @@
   /*State for image toggle change*/
   const [isImageExist, setIsImageExists] = useState(false);
 
+  /*Here to store the older image id*/
+  const [older_public_id, setOlder_public_id] = useState('')
+
+  /*Holding the data here on this*/
+  const [categoryName, setCategoryName] = useState('');
+
+  const onCategoryNameChange = (e: any) => {
+    setCategoryName(e.target.value)
+  }
+
   useEffect(() => {
-    console.log("Here is the category image that is changing", categoryImage) 
-    
+    const getFromLocalHost = localStorage.getItem('first_public_id')
+    if(getFromLocalHost) {
+      setOlder_public_id(getFromLocalHost)
+    }
   },[categoryImage])
 
 
@@ -81,12 +94,32 @@
               }
             });
             if (response.data) {
+
+              /*STARTING*/
+                const {
+                  category_image,
+                  category_name,
+                  is_parent,
+                  is_available,
+                  category_description,
+                } = response.data.getCategoryOne.category;
+      
+                // Set fetched values to form fields using setValue
+                setValue('category_name', category_name);
+                setValue('category_description', category_description);
+                setValue('category_image', category_image ? category_image.url : ''); // Set image URL or empty string
+                setValue('isparent', is_parent);
+                setValue('isavailable', is_available);
+              /*ENDING*/
+
+              console.log("Here it is", response.data.getCategoryOne.category.category_image.publicId)
               if(response.data.getCategoryOne.category.category_image) {
                 setIsImageExists(true);
-                localStorage.setItem('first_public_id', response.data.getCategoryOne.category.category_image.public_id)
+                localStorage.setItem('first_public_id', response.data.getCategoryOne.category.category_image.publicId)
               }
               setCategoryImage(response.data.getCategoryOne.category.category_image) 
               setCategoryData(response.data.getCategoryOne.category); 
+              setCategoryName(response.data.getCategoryOne.category.category_name)
               setenabledIsParent(response.data.getCategoryOne.category.is_parent) 
               setenabledIsAvailable(response.data.getCategoryOne.category.is_available)
               const description = await JSON.parse(response.data.getCategoryOne.category.category_description);
@@ -102,12 +135,10 @@
         fetchCategoryData();
     }, []);
 
-
     const handleCategoryChange = (selectedCategory: string) => {
       setSelectedCategory(selectedCategory);
       console.log(selectedCategory, "here is the selected category")
     };
-
   {
   /***All the localstorage image logic***/
     useEffect(()=> {
@@ -144,7 +175,6 @@
       resolver: yupResolver(formSchema),
     });
 
-
     useEffect(() => {
       setValue("isparent", enabledIsParent);
       setValue("isavailable", enabledIsAvailable);
@@ -161,16 +191,6 @@
     const [updateCategory] = useMutation(UPDATE_CATEGORY);
 
     const onSubmit: SubmitHandler<FormValues> = async (values) => {
-      console.log("Reached on on submit")
-      console.log(values.category_name, "this is the category name")
-      console.log(imageUrl, "this is image url")
-
-      console.log(enabledIsParent, "is parent")
-
-      console.log(enabledIsAvailable, "is available")
-
-      console.log(selectedCategory, "select the category")
-
       const data = convertToRaw(editorState.getCurrentContent());
       const description_categories = JSON.stringify(data)
 
@@ -202,8 +222,8 @@
                 url: categoryImage?.url,
                 publicId: categoryImage?.publicId
               },
-              is_available: enabledIsParent,
-              is_parent: enabledIsAvailable,
+              is_available: enabledIsAvailable,
+              is_parent: enabledIsParent,
               parent: selectedCategory
             }
           }
@@ -223,6 +243,7 @@
             position: "top-center",
             toastId: "randomid"
           })
+          router.push('/product-management/categories')
         }
 
         const errors = submitResponse.data.addCategory.errors;
@@ -302,13 +323,16 @@
     }
   /******* ENDING OF IMAGE LOGICS*/
 
+  const redirectToBack = () => {
+    router.push('/product-management/categories')
+  }
     return (
       <>    
       <div>
         
       <ToastContainer/>
         <Breadcrumb pageName="Edit Category" />
-        <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 xl:mb-40 lg:mb-36 md:mb-30 mb-40 bg-slate-400">
+        <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 xl:mb-40 lg:mb-36 md:mb-30 mb-40 overflow-scroll h-[740px]">
           <div className="flex flex-col gap-9">
             {/* <!-- Input Fields --> */}
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -319,9 +343,8 @@
                   </label>
                   <input
                     type="text"
-                    defaultValue={categoryData ? categoryData.category_name : ''}
                     className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    {...register('category_name')} // Register the 'first_name' field here
+                    {...register('category_name')}
                   />
                       {errors.category_name && (
                       <p className='text-[#FF5733] text-xs  pt-2'>
@@ -336,12 +359,13 @@
                       <Controller
                       name="category_description"
                       control={control}
+                    
                       render={({ field: { onChange, value } }) => (
                         <Editor
                           editorState={editorState}
                           onEditorStateChange={state => {
                             updateTextDescription(state);
-                            onChange(convertToRaw(state.getCurrentContent()).blocks[0].text);
+                            // onChange(convertToRaw(state.getCurrentContent()).blocks[0].text);
                           }}
                           toolbarClassName="toolbarClassName"
                           wrapperClassName="wrapperClassName"
@@ -398,7 +422,6 @@
                             } else {
                               setIsValidType(true)
                             }
-                           
 
                             setCategoryImage({
                               url: info.url,
@@ -635,12 +658,25 @@
       <label className="block text-sm font-medium text-black dark:text-white">
           Select Parent Category
       </label>
-    <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/>
+    <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange} currentCategoryId ={decodedSlug}/>
       
+      <div className="flex gap-4">
       <button type="submit"
               className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 w-64 md:w-400">
         Save Changes
       </button>
+
+      <button type="submit"
+              className="py-2.5 px-2 me-2 mb-2 text-sm font-medium text-slate-900 focus:outline-none bg-white rounded-lg border border-state-200 hover:bg-slate-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-600 dark:hover:text-white dark:hover:bg-slate-700 w-36 md:w-400"
+              onClick={(e)=> {
+                e.preventDefault()
+                redirectToBack()
+              }}        
+      >
+              
+        Cancel
+      </button>
+  </div>
               </form>
             </div>
           </div>
