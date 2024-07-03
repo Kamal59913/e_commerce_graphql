@@ -1,5 +1,5 @@
 import { GraphQLBoolean, GraphQLEnumType, GraphQLFloat, GraphQLInputObjectType, GraphQLInt, GraphQLNonNull, GraphQLObjectType, GraphQLString } from "graphql";
-import { CurrencyTypes } from "@/db/models/products_types/product_types";
+import { CurrencyType } from "@/db/models/products_type/products_type";
 
 export const ProductsInputType = new GraphQLInputObjectType({
     name: 'ProductsInputType',
@@ -8,7 +8,7 @@ export const ProductsInputType = new GraphQLInputObjectType({
       product_description: {type: new GraphQLNonNull(GraphQLString)},
       stock_quantity: {type: GraphQLInt},
       product_price: { type: new GraphQLNonNull(GraphQLFloat)},
-      currency: { type: CurrencyTypes},
+      currency: { type: CurrencyType},
       isActive: { type: new GraphQLNonNull(GraphQLBoolean)},
       weight: {type: new GraphQLNonNull(GraphQLFloat)},
       dimensions: {type: new GraphQLNonNull(GraphQLString)},

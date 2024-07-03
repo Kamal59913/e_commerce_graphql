@@ -269,7 +269,7 @@ const removeSection = () => {
     <>
     <ToastContainer/>
       <Breadcrumb pageName="Add a Product" />
-      <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 mb-20">
+      <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 mb-20 overflow-scroll h-[760px]">
         <div className="flex flex-col gap-9">
           {/* <!-- Input Fields --> */}
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

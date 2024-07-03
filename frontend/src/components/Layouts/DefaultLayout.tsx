@@ -30,7 +30,7 @@ export default function DefaultLayout({
 
           {/* <!-- ===== Main Content Start ===== --> */}
           <main className="dark:bg-slate-800 overflow-hidden h-screen">
-            <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+            <div className="max-w-screen-2xl md:p-6 2xl:p-10">
               {children}
             </div>
           </main>

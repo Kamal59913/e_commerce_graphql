@@ -13,11 +13,16 @@ import { CategoryEditInputType } from "./types/CATEGORY_EDIT_INPUT_TYPE ";
 import UpdateResponseType from "./types/UpdateResponseType";
 import DeleteCategoryResolver from "./resolvers/DeleteCategory";
 import getCategoryNoCurrentResolver from "./resolvers/GetWithoutCurrentCategory";
+import getCategoryWithParentTrueResolver from "./resolvers/getCategoryWithParentTrueResolver";
 
 export const getCategoryQuery = {
     getCategory: {
         type: getCategoryResponseType,
         resolve: getCategoryResolver
+    },
+    getCategoryWithParentTrue: {
+        type: getCategoryResponseType,
+        resolve: getCategoryWithParentTrueResolver
     }
 }
 

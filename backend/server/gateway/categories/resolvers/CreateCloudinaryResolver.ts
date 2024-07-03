@@ -8,8 +8,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET 
 });
 
-  console.log("reached here", cloudinary.config())
-  const { public_id } = args.input
+const { public_id } = args.input
 
   if(!public_id ) {
     return {

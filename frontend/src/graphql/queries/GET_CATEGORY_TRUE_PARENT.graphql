@@ -1,0 +1,33 @@
+query GetCategoryWithParentTrue {
+  getCategoryWithParentTrue {
+    category {
+      _id
+      category_name
+      category_description
+      category_image {
+        displayName
+        url
+        publicId
+      }
+      is_available
+      is_parent
+      parent {
+        _id
+        category_name
+        category_description
+        category_image {
+          displayName
+          url
+          publicId
+        }
+        is_available
+        is_parent
+      }
+    }
+    errors {
+      message
+      code
+    }
+    success
+  }
+}

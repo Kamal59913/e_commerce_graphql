@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import SelectCategoryAddCategory from "../SelectGroup/SelectCategoryAddCategory";
 
 interface ImageData {
   url: string;
@@ -226,7 +227,7 @@ const AddCategory: React.FC = () => {
     <div>
     <ToastContainer/>
       <Breadcrumb pageName="Add a Category" />
-      <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 xl:mb-40 lg:mb-36 md:mb-30 mb-40 bg-slate-400">
+      <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 xl:mb-40 lg:mb-36 md:mb-30 mb-40 overflow-scroll h-[800px]">
         <div className="flex flex-col gap-9">
           {/* <!-- Input Fields --> */}
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -514,7 +515,7 @@ const AddCategory: React.FC = () => {
     <label className="block text-sm font-medium text-black dark:text-white">
         Select Parent Category
     </label>
-  <SelectCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/>
+  <SelectCategoryAddCategory isDisabled={isDisabled} onSelectCategoryChange={handleCategoryChange}/>
     <button type="submit"
             className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 w-64 md:w-400">
       Save

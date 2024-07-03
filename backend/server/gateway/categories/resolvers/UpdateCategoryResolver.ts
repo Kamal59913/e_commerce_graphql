@@ -3,7 +3,6 @@ import CategoryModel from "@/db/models/categories_model/categories.model";
 const UpdateCategoryResolver = async (parent, args, context) => {
   
   try {
-  console.log("reached here in the update category resolver `")
 
     const {
       category_id,

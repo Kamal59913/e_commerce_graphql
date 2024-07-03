@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { RiShoppingBag2Fill } from "react-icons/ri";
-import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_QUERY.graphql'
+import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_TRUE_PARENT.graphql'
 import { useQuery } from "@apollo/client";
 import Select from 'react-select';
 
@@ -26,8 +26,8 @@ const SelectCategoryForProducts: React.FC<addCategoryProps> = ({isDisabled, onSe
 
 
   useEffect(() => {
-    if (data && data.getCategory) {
-      const transformedData = data.getCategory.category.map((category: any) => ({
+    if (data && data.getCategoryWithParentTrue) {
+      const transformedData = data.getCategoryWithParentTrue.category.map((category: any) => ({
         value: category.category_name,
         label: category.category_name,
       }));
@@ -43,18 +43,7 @@ const SelectCategoryForProducts: React.FC<addCategoryProps> = ({isDisabled, onSe
     }
     onSelectCategoryChange(categoryValue); // Call the callback function with the selected value
   };
-    // Transform data into options array
-
-      let options = [];
-      if (data) {
-        options = data.getCategory.category.map((category: any) => ({
-          value: category.category_name,
-          label: category.category_name,
-        }));
-      }
-
-
-
+  
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
   

@@ -40,7 +40,6 @@
 
   const decodedSlug = decodeURIComponent(slug as string).replace(/-/g, ' ');
 
-  console.log("Here is the decoded slug", decodedSlug)
 
   const [categoryData, setCategoryData] = useState<any>(null);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
@@ -60,6 +59,11 @@
   const [isvalidType, setIsValidType] = useState(true);
   const [getCategoryOneData, {data, loading, error}] = useMutation(GET_CATEGORY_ONE)
   const [isDeleteImage, setIsDeleteImage] = useState(false);
+
+
+  /*Unsaved Changes Option*/
+  const [isDirty, setIsDirty] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
 
   /*State for image toggle change*/
@@ -112,7 +116,6 @@
                 setValue('isavailable', is_available);
               /*ENDING*/
 
-              console.log("Here it is", response.data.getCategoryOne.category.category_image.publicId)
               if(response.data.getCategoryOne.category.category_image) {
                 setIsImageExists(true);
                 localStorage.setItem('first_public_id', response.data.getCategoryOne.category.category_image.publicId)
@@ -137,7 +140,6 @@
 
     const handleCategoryChange = (selectedCategory: string) => {
       setSelectedCategory(selectedCategory);
-      console.log(selectedCategory, "here is the selected category")
     };
   {
   /***All the localstorage image logic***/
@@ -180,12 +182,12 @@
       setValue("isavailable", enabledIsAvailable);
       if(imageUrl?.url != '') {
         setValue("category_image", imageUrl?.url)
-        console.log(imageUrl, "here is the image url")
       }
     }, [enabledIsParent, enabledIsAvailable, setValue]);
 
     const updateTextDescription = async (state: any) => {
       setEditorState(state);
+      setIsDirty(true)
     };
 
     const [updateCategory] = useMutation(UPDATE_CATEGORY);
@@ -202,14 +204,11 @@
       }
 
       if(isSingleImage) {
-        console.log("This is the single image")
         return;
       }
 
 
-      console.log("Here is what is DeleteImage is true or false", isDeleteImage)
       try {
-        console.log("Reached until here as well")
         const submitResponse = await updateCategory({
           variables: {
             input:
@@ -228,9 +227,7 @@
             }
           }
         })
-        console.log(submitResponse.data
-          , "new response"
-        )
+  
 
         if(submitResponse.data.updateCategory.success == true) {
           setImageUrl(null)
@@ -244,6 +241,7 @@
             toastId: "randomid"
           })
           router.push('/product-management/categories')
+          setIsDirty(false)
         }
 
         const errors = submitResponse.data.addCategory.errors;
@@ -271,7 +269,6 @@
     const deleteImage = async (url: string) => {
       const categoryImage = localStorage.getItem('categoryImage')
       if(categoryImage) {
-      console.log(url, "here is our url")
       const deleteImageResponse = await deleteImageGrapqhl({
         variables : {
           input: 
@@ -288,7 +285,6 @@
     }
 
     const deleteEditImage = async (publicId: string) => {
-      console.log(publicId, "here is our url")
       const deleteImageResponse = await deleteImageGrapqhl({
         variables : {
           input: 
@@ -326,6 +322,27 @@
   const redirectToBack = () => {
     router.push('/product-management/categories')
   }
+
+  // Detect page unload and show confirmation if form is dirty
+  useEffect(() => {
+    const handleBeforeUnload = (e: any) => {
+      if (isDirty) {
+        const confirmationMessage = 'You have unsaved changes. Are you sure you want to leave?';
+        e.preventDefault();
+        e.returnValue = confirmationMessage;
+        return confirmationMessage;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isDirty]);
+
+  
+
     return (
       <>    
       <div>
@@ -344,7 +361,8 @@
                   <input
                     type="text"
                     className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    {...register('category_name')}
+                    {...register('category_name')} // Register the 'first_name' field here
+                    onChange={()=> setIsDirty(true)}
                   />
                       {errors.category_name && (
                       <p className='text-[#FF5733] text-xs  pt-2'>
@@ -405,73 +423,28 @@
                   </div>
                   </div>
                   }
-                <div className="flex gap-10">
-                <CldUploadWidget uploadPreset="cloudinary_image_upload"
->
-                      {({ open, results}) => {
-                        useEffect(() => {
-                          if (results?.info && typeof results.info !== 'string') {
-                            const info = results.info;
-                            console.log(info.url, "here is the url, agaim")
-                            if(!(info.format == 'jpg' || info.format == 'jpeg' || info.format == 'png')) {
-                              setIsValidType(false)
-                              toast.error("only jpg, jpeg and png files are allowed", {
-                                position: "top-center",
-                                toastId: 'randomId2'
-                              });
-                            } else {
-                              setIsValidType(true)
-                            }
+                <div className="flex gap-10">                 
+                    <div className="flex gap-20">
+                    <div className="relative group inline-block">
 
-                            setCategoryImage({
-                              url: info.url,
-                              publicId: info.public_id,
-                              displayName: info.original_filename
-                            })
-
-                            localStorage.setItem('categoryImage', JSON.stringify({
-                              url: info.url,
-                              publicId: info.public_id,
-                              displayName: info.original_filename
-                            }))
-                            setimagerequiredtoggle(false)
-                          
-                          }
-                        }, [results]);
-      
-                      
-                      return (                 
-                          <div className="flex gap-20">
-              <div className="relative group inline-block">
-                  <AiOutlineCloudUpload
-                  size={34}
-                  style={{color: 'blue', cursor:'pointer'}}
-                            onClick={async (e) => 
-                            {
-                            e.preventDefault()
-                            const valid = await trigger(["category_name", "category_description"]);
-                            
-                            if(valid) {
-                              open()  
-                            } else {
-                              toast.error("Please fill out the category name and description before uploading an image", {
-                                position: "top-center",
-                                toastId: "randomIdFormValidation"
-                              }); 
-                            }
-                          }
-                        }   
-                  />
-                  <div className="ml-14 absolute z-10 left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-32 bg-slate-500 text-white text-center text-xs rounded py-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Replace Image
-                  </div>
+                        <AiOutlineCloudUpload
+                        size={34}
+                        style={{color: 'blue', cursor:'pointer'}}
+                                  onClick={async (e) => 
+                                  {
+                                  e.preventDefault()
+                                  // const valid = await trigger(["category_name", "category_description"]);
+                                  
+                              
+                                }
+                              }   
+                        />
+                        <div className="ml-14 absolute z-10 left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-32 bg-slate-500 text-white text-center text-xs rounded py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            Replace Image
+                        </div>
               </div>
-                          </div>
-                      )
-                    }
-                  }
-                </CldUploadWidget>       
-                {
+                    </div>
+                            {
                 !isDeleteImage && 
                               <div className="relative group inline-block">
                   <CiSquareRemove 

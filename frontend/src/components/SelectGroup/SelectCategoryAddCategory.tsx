@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { RiShoppingBag2Fill } from "react-icons/ri";
-import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_QUERY.graphql'
+import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_TRUE_PARENT.graphql'
 import { useMutation, useQuery } from "@apollo/client";
 import Select from 'react-select';
 import GET_CATEGORY_EXCLUDING_CURRENT from '../../graphql/mutations/GET_CATEGORY_EXCLUDING_CURRENT.graphql'
@@ -9,10 +9,9 @@ import GET_CATEGORY_EXCLUDING_CURRENT from '../../graphql/mutations/GET_CATEGORY
 interface addCategoryProps {
   isDisabled: boolean,
   onSelectCategoryChange: (selectedCategory: string) => void;
-  currentCategoryId: string
 }
 
-const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategoryChange, currentCategoryId}) => {
+const SelectCategoryAddCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategoryChange}) => {
 
   const [isClearable, setIsClearable] = useState(true);
   const [isSearchable, setIsSearchable] = useState(true);
@@ -21,47 +20,18 @@ const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategor
   const [isRtl, setIsRtl] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(false);
 
-  // const { data, loading, error } = useQuery(GET_CATEGORIES);
+  const { data, loading, error } = useQuery(GET_CATEGORIES);
   const [categoryOptions, setCategoryOptions] = useState([]);
 
-  const [getCategories] = useMutation(GET_CATEGORY_EXCLUDING_CURRENT)
-
-
-  console.log("Here is the user Id", currentCategoryId)
-  useEffect(()=> {
-    const fetchCategoryData = async () => {
-      try{
-        const response = await getCategories({
-          variables: {
-            input: {
-              _id: currentCategoryId
-            }
-          }
-        })
-        const data = response.data.getCategoryExcludingCurrent.category
-        console.log("Here is the transformed data", data)
-          const transformedData = data.map((category: any) => ({
-            value: category.category_name,
-            label: category.category_name,
-          }));
-          setCategoryOptions(transformedData);
-      } catch(error) {
-        console.log("Here is the error", error)
-      }
-    };
-
-    fetchCategoryData();
-  },[])
-
-  // useEffect(() => {
-  //   if (data && data.getCategory.category) {
-  //     const transformedData = data.getCategory.category.map((category: any) => ({
-  //       value: category.category_name,
-  //       label: category.category_name,
-  //     }));
-  //     setCategoryOptions(transformedData);
-  //   }
-  // }, [data]);
+  useEffect(() => {
+    if (data && data.getCategoryWithParentTrue.category) {
+      const transformedData = data.getCategoryWithParentTrue.category.map((category: any) => ({
+        value: category.category_name,
+        label: category.category_name,
+      }));
+      setCategoryOptions(transformedData);
+    }
+  }, [data]);
 
   const handleCategoryChange = (selectedOption: any) => {
     const categoryValue = selectedOption.value;
@@ -73,6 +43,7 @@ const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategor
     console.log("Here is the category data", categoryOptions)
   },[categoryOptions])
 
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
 
   const changeTextColor = () => {
@@ -101,4 +72,4 @@ const SelectCategory: React.FC<addCategoryProps> = ({isDisabled, onSelectCategor
   );
 };
 
-export default SelectCategory;
+export default SelectCategoryAddCategory;

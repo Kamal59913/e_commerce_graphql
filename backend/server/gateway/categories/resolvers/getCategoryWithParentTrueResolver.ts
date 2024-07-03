@@ -1,10 +1,12 @@
 
 import CategoryModel from "@/db/models/categories_model/categories.model";
 
-const getCategoryResolver = async (parent, args, context) => {
+const getCategoryWithParentTrueResolver = async (parent, args, context) => {
   try {
     /*check if username or email already exists in the database*/
-   const category = await CategoryModel.find().populate('parent')
+   const category = await CategoryModel.find({
+    is_parent: true
+   })
 
    if(category.length == 0) {
     return {
@@ -36,4 +38,4 @@ const getCategoryResolver = async (parent, args, context) => {
   }
 };
 
-export default getCategoryResolver;
+export default getCategoryWithParentTrueResolver;

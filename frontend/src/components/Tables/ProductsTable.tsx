@@ -2,7 +2,7 @@
 import { BRAND } from "@/types/brand";
 import Image from "next/image";
 import { useMutation, useQuery } from "@apollo/client";
-import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_QUERY.graphql';
+import GET_PRODUCTS from '../../graphql/queries/GET_PRODUCTS_QUERY.graphql';
 import { useEffect, useState } from "react";
 import { Editor, EditorState, convertFromRaw } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
@@ -16,7 +16,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
-import DELETE_CATEGORY from '../../graphql/mutations/DELETE_CATEGORY.graphql'
+import DELETE_PRODUCT from '../../graphql/mutations/DELETE_PRODUCT.graphql'
+
+import { FaCheck } from "react-icons/fa";
+import { RxCross2 } from "react-icons/rx";
+import { FaRupeeSign } from "react-icons/fa";
+import { IoWarningOutline } from "react-icons/io5";
 
 
 
@@ -39,35 +44,51 @@ interface ImageObject {
   publicId: string
 }
 
-interface Category {
+interface Product {
   _id: string;
-  category_name: string;
-  category_image: ImageObject;
-  category_description: EditorState;
-  is_available: boolean;
-  is_parent: boolean;
-  parent?: { category_name: string } | null;
+  product_name: string;
+  product_description: EditorState;
+  stock_quantity: number;
+  product_price: number;
+  discount_price?: number;
+  currency: "USD" | "EUR" | "INR";
+  isActive: boolean;
+  weight?: number;
+  dimensions?: string;
+  material?: string;
+  model_number?: string;
+  warranty?: string;
+  is_new: boolean;
+  shipping_weight?: string;
+  shipping_dimensions?: string;
+  product_category?: {
+    _id: string;
+    category_name: string;
+  };
+  product_images: ImageObject[];
+  more_details: { key: string; value: string }[];
+  createdAt?: string;
+  updatedAt?: string;
 }
-
-const CategoryTable = () => {
-  const { data, loading, error } = useQuery(GET_CATEGORIES, {
+const ProductsTable = () => {
+  const { data, loading, error } = useQuery(GET_PRODUCTS, {
     fetchPolicy: "network-only", 
   });
 
 
-  const [deleteCategory] = useMutation(DELETE_CATEGORY)
+  const [deleteProduct] = useMutation(DELETE_PRODUCT)
   const router = useRouter();
 
-  const [categoryData, setCategoryData] = useState<Category[]>([]);
+  const [productsData, setproductsData] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [categorySelected, setCategorySelected] = useState('')
-  const [categoryIdSelected, setCategoryIdSelected] = useState('')
+  const [productsIdSelected, setproductsIdSelected] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleOpen = (category_id: string, category_name: string) => {
     setOpen(true);
     setCategorySelected(category_name)
-    setCategoryIdSelected(category_id)
+    setproductsIdSelected(category_id)
   };
   const handleClose = () => {
     setOpen(false);
@@ -75,55 +96,55 @@ const CategoryTable = () => {
 
 
   useEffect(() => {
-    if (data && data.getCategory.category) {
-      const processedCategories = data.getCategory.category.map((category: { category_description: string }) => {
+    if (data && data.getProducts.products) {
+      const processedProducts = data.getProducts.products.map((products: { product_description: string }) => {
         try { 
-          const xyz = JSON.parse(category.category_description);
+          const xyz = JSON.parse(products.product_description);
           const contentState = convertFromRaw(xyz);
           const processedDescription = EditorState.createWithContent(contentState);
 
           return {
-            ...category,
-            category_description: processedDescription,
+            ...products,
+            product_description: processedDescription,
           };
         } catch (error) {
           console.error("Error parsing category description:", error);
           return {
-            ...category,
-            category_description: EditorState.createEmpty(),
+            ...products,
+            product_description: EditorState.createEmpty(),
           };
         }
       });
-      setCategoryData(processedCategories);
+      setproductsData(processedProducts);
     }
   }, [data, deleteLoading]);
 
-
+useEffect(()=> {
+  console.log(productsData, "Products Data")
+},[productsData])
 
   const deletetheCategory = async () => {
     console.log("reached here on the delete logic")
-    const deleteResponse  = await deleteCategory({
+    const deleteResponse  = await deleteProduct({
       variables: {
         input: {
-          _id: categoryIdSelected
+          _id: productsIdSelected
         }
       }
     })
-    if(deleteResponse.data.deleteCategory.success == true) {
+    if(deleteResponse.data.deleteProduct.success == true) {
         toast.success("Successfully Deleted the categoty", {
           position: "top-center",
           toastId: "randomId"
         })
         handleClose()
-        setCategoryData(prevData => prevData.filter(category => category._id !== categoryIdSelected));
+        setproductsData(prevData => prevData.filter(products => products._id !== productsIdSelected));
     }
     console.log(deleteResponse, "Here is the delete response")
   }
 
   const onEditorStateChange = (index: number, newEditorState: any) => {
-    const updatedCategoryData = [...categoryData];
-    updatedCategoryData[index].category_description = newEditorState;
-    setCategoryData(updatedCategoryData);
+
   };
 
   const editPageRedirect = (slug: string) => {
@@ -132,10 +153,6 @@ const CategoryTable = () => {
 
     router.push(`/product-management/categories/edit/${encodedSlug}`)
   }
-
-  useEffect(()=> {
-    console.log(categoryData, "Here is the category data")
-  },[categoryData])
 
 
   if (loading) return <p>Loading...</p>;
@@ -154,9 +171,11 @@ const CategoryTable = () => {
         aria-describedby="child-modal-description"
       >
         <Box sx={{ ...style, width: 400}}>
-          <div className="mb-2"><span className="text-lg font-semibold">Delete Category </span> <span className="font-semibold italic"> {`${categorySelected}`} </span></div>
+          <div className="mb-2"><span className="text-lg font-semibold flex gap-2">
+            <IoWarningOutline size={20} className="mt-1"/>
+          Sure want to delete the Product </span> <span className="font-semibold italic"> {`${categorySelected}`} </span></div>
           <p id="child-modal-description">
-              Sure want to delete !
+              By clicking on the delete button the product will be permenantly deleted. 
           </p>
           <button type="button" className="mt-4 focus:outline-none text-white bg-[#D2122E] hover:bg-[#D2122E] focus:ring-4 focus:ring-[#D2122E] font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-[#D2122E"
           onClick={(e)=> {
@@ -181,105 +200,134 @@ onClick={(e)=> {
 
           </Box>
       </Modal>
-    <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1 ">
+    <div className="rounded-sm border border-stroke bg-white pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1 ">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
-        Categories
+        Products
       </h4>
 
       <div className="flex flex-col">
-      <div className="grid grid-cols-11 gap-0">
-           <div className="p-2.5 xl:p-5 col-span-3">
+      <div className="grid grid-cols-12 gap-2 pr-2">
+      <div className="">#</div>
+           <div className="col-span-2 ">
             <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
               Name
             </h5>
           </div>
-          <div className="p-2.5 xl:p-5 col-span-3 col-start-4">
+          <div className="col-span-2 col-start-4 ">
             <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
-              Details
+              Description
             </h5>
           </div>
-          <div className="p-2.5 xl:py-5 col-start-7">
+          <div className="hidden text-center sm:block w-26 col-start-6 ">
             <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
-              Availability
+              Stock
             </h5>
           </div>
-          <div className="hidden p-2.5 text-center sm:block xl:py-5 w-26 col-start-8">
+          <div className="hidden text-center sm:block w-26 col-start-7 ">
             <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
-              Is Parent
+              Price 
             </h5>
           </div>
-          <div className="hidden p-2.5 text-center sm:block xl:p-5 col-span-2 col-start-9">
+          <div className="hidden text-center sm:block col-span-2 col-start-8 ">
             <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
-              Parent Category
+              Category
             </h5>
           </div>
-          <div className="hidden p-2.5 text-center sm:block xl:p-5 col-span-1 col-start-11">
+          <div className="hidden text-center sm:block col-span-1 col-start-10 ">
+            <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
+              Availablity
+            </h5>
+          </div>
+          <div className="hidden text-center sm:block col-span-1 col-start-11 ">
+            <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
+              Created at
+            </h5>
+          </div>
+          <div className="hidden text-center sm:block col-span-1 col-start-12 ">
             <h5 className="text-sm font-medium uppercase xsm:text-base dark:text-white">
             </h5>
           </div>
         </div>
         
-        <div className="overflow-auto max-h-[500px] xl:max-h-[640px]">
-        {categoryData.map((brand: Category, index: number) => (
+        <div className="
+              overflow-scroll
+
+        max-h-[500px] xl:max-h-[640px] scrollbar-hidden">
+        {productsData.map((brand: any, index: any) => (
           <div
-            className={`grid grid-cols-12 sm:grid-cols-11 gap-0 ${
-              index === categoryData.length - 1
+            className={`grid grid-cols-12 py-6 sm:grid-cols-12${
+              index === productsData.length - 1
                 ? ""
                 : "border-b border-stroke dark:border-strokedark"
             }`}
             key={index}
           >
-            <div className="relative items-center gap-3 p-2.5 xl:p-5 col-span-3">
-              <div>
+          <div className="">{index}</div>
+          <div className="relative col-span-2 ">
+              <div className="flex inline-block">
                 <p className="font-bold text-black dark:text-white sm:block">
-                  {brand.category_name} 
+                  {brand.product_name} 
                 </p>
+                {/* <p> {brand.is_new? <span className="mt-1 ml-2 rounded-full text-[#00FF00] text-xs">new</span> :  ""} </p> */}
               </div>
 
-              <div className="flex-shrink-0">
+              <div className="flex inline-block">
                 <img
-                  src={brand.category_image?.url}
+
+                  src={brand.product_images[0]?.url}
                   alt="Brand"
-                  className="h-36 my-2"
+                  className="h-20 my-2"
                 />
               </div>
            
             </div>
-            <div className="flex items-center p-2.5 xl:p-5 col-span-3 col-start-4">
+          <div className="flex items-center col-span-2 col-start-4">
               <Editor
-                editorState={brand.category_description}
+                editorState={brand.product_description}
                 onChange={(state : EditorState) => {
                   onEditorStateChange(index, state)
                 }}
                 readOnly={true}
               />
             </div>
-            <div className="flex items-center justify-center p-2.5 xl:p-5 w-26 col-start-7">
+
+            <div className="flex items-center justify-center py-2.5 xl:py-5 w-26 col-start-6 ">
               <p className="text-black dark:text-white font-semibold">
-                {brand.is_available ? <>YES</> : <>NO</>}
+                {brand.stock_quantity}
               </p>
             </div>
 
-            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5 w-26 col-start-8">
-              <p className="text-black dark:text-white font-semibold">
-                {brand.is_parent ? <>YES</> : <>NO</>}
+            <div className="hidden items-center justify-center py-2.5 sm:flex xl:py-5 w-26 col-start-7 ">
+              <p className="text-black dark:text-white font-semibold flex">
+                {brand.product_price} {brand.currency} 
               </p>
             </div>
-
-            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5 col-span-2 col-start-9">
+ 
+            <div className="hidden items-center justify-center py-2.5 sm:flex xl:py-5 col-span-2 col-start-8 ">
               <p className="text-meta-5">
-                {brand.parent ? brand.parent.category_name : <>Not Exist</>}
+                {brand.product_category ? brand.product_category.category_name : <>Not Exist</>}
+              </p>
+            </div>
+            <div className="hidden items-center justify-center py-4 sm:flex xl:py-5 col-span-1 col-start-10 ">
+              <p className="text-meta-5">
+                {brand.isActive ? <>Yes <button className="h-2 w-2 rounded-full bg-[#00FF00] text-xs"></button> </>  : <>No <button className="h-2 w-2 rounded-full bg-[#FF5733] text-xs"></button></>}
               </p>
             </div>
 
-            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5 col-span-1 col-start-11">
+            <div className="hidden items-center justify-center py-2.5 sm:flex xl:py-5 col-span-1 col-start-11 ">
+            <p className="text-meta-5 ml-4">
+            {new Date(parseInt(brand.createdAt)).toLocaleString()}
+            </p>
+            </div>
+
+            <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5 col-span-1 col-start-12 ">
               <div className="mt-2 flex cursor-pointer gap-1"> 
                   <CiEdit className="h-[24px] w-[24px] hover:text-[#355e3b]"
                   onClick={()=> editPageRedirect(brand._id)}
                   /> 
                   <span className="ml-2"> </span>
                   <RiDeleteBin6Line className="h-[20px] w-[24px] hover:text-red"
-                  onClick={()=> {handleOpen(brand._id, brand.category_name)}}
+                  onClick={()=> {handleOpen(brand._id, brand.product_name)}}
                   />
               </div>
             </div>
@@ -292,4 +340,4 @@ onClick={(e)=> {
   );
 };
 
-export default CategoryTable;
+export default ProductsTable;

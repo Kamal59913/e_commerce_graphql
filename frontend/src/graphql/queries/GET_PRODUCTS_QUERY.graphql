@@ -1,0 +1,49 @@
+query GetProducts {
+  getProducts {
+    success
+    products {
+      _id
+      product_name
+      product_description
+      stock_quantity
+      product_price
+      discount_price
+      currency
+      isActive
+      weight
+      dimensions
+      material
+      model_number
+      warranty
+      is_new
+      shipping_weight
+      shipping_dimensions
+      product_category {
+        _id
+        category_name
+        category_description
+        category_image {
+          displayName
+          url
+          publicId
+        }
+        is_available
+        is_parent
+      }
+      product_images {
+        displayName
+        url
+        publicId
+      }
+      more_details {
+        key
+        value
+      }
+      createdAt
+    }
+    errors {
+      message
+      code
+    }
+  }
+}
