@@ -53,7 +53,7 @@ const SelectCategoryForProducts: React.FC<addCategoryProps> = ({isDisabled, onSe
 
   return (
     <div>
-      <div className="relative z-20 bg-white dark:bg-form-input h-full">
+      <div className="relative bg-white dark:bg-form-input h-full">
         <Select
           className="basic-single"
           classNamePrefix="select"

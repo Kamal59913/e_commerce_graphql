@@ -18,6 +18,28 @@ import SelectCategoryForProducts from "../SelectGroup/SelectCategoryForProducts"
 import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import Select from 'react-select';
+import AddMoreDetailsProduct from "../SelectGroup/addMoreDetails/addMoreDetailsProduct";
+import AddMoreDetailsSize from "../SelectGroup/addMoreDetails/addMoreDetailsSize";
+import AddMoreDetailsColor from "../SelectGroup/addMoreDetails/addMoreDetailsColor";
+
+/*MUI pop-up box*/
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import Button from '@mui/material/Button';
+
+const style = { 
+  position: 'fixed' as 'fixed',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  px: 4,
+  py: 4,
+  zIndex: 9999, // Add zIndex here
+  border: 'none'
+};
 
 
 interface ImageData {
@@ -59,15 +81,36 @@ const AddCategory: React.FC = () => {
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
     );
+  
+  const [selectedProduct, setSelectedProduct] = useState<string>("");
+  const [selectedSize, setSelectedSize] = useState<string>("")
+  const [selectedColor, setSelectedColor] = useState<string>("")  
+  const [addColorOptions, setaddColorOptions] = useState([''])
+  const [addSizeOptions, setaddSizeOptions] = useState([''])
+  /* useState for the pop up open*/
+  const [open, setOpen] = useState(false);
 
-    
+  /*Here is the starting of the toggles*/
+  const [sizeModalToggle, setSizeModalToggle] = useState(false);
+  const [colorModalToggle, setColorModalToggle] = useState(false);
+
   const handleCategoryChange = (selectedCategory: string) => {
     setSelectedCategory(selectedCategory); // Update the state with the selected category
     console.log(selectedCategory, "here is the selected category")
   };
   /*Ending of Category Selection*/
-
-
+  const handleProductChange = (selectedProduct: string) => {
+    setSelectedProduct(selectedProduct); // Update the state with the selected category
+  };
+  
+  const handleSizeChange = (selectedSize: string) => {
+    setSelectedSize(selectedSize)
+  }
+  
+  const handleColorChange = (selectedColor: string) => {
+    setSelectedColor(selectedColor)
+  }
+  
   /*passing function to selectCategory For Products*/
   const disableCategoryTest = () => {
     setisCategorySelected(false)
@@ -83,11 +126,9 @@ const AddCategory: React.FC = () => {
     }
   }, []);
 
-
   useEffect(() => {
     console.log("Here is the details",counter)
   }, [counter])
-
 
   const checkIfImageMoreThan = () => {
     if(imageUrls.length> 4) {
@@ -104,12 +145,8 @@ const AddCategory: React.FC = () => {
     ]);
   };
 
-const removeSection = () => {
-  setCounter(prevCounter => {
-    if (prevCounter.length === 0) {
-    }
-    return prevCounter.slice(0, -1);
-  });
+const removeSection = (index: any) => {
+  setCounter((prevCounter) => prevCounter.filter((_, i) => i !== index));
 }
 
   const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,8 +158,6 @@ const removeSection = () => {
     };
     setCounter(list);
   };
-  
-
   
   const {
     control,
@@ -146,7 +181,6 @@ const removeSection = () => {
     reValidateMode: "onChange",
     resolver: yupResolver(formSchema),
   });
-
 
   const updateTextDescription = async (state: any) => {
     setEditorState(state);
@@ -230,10 +264,8 @@ const removeSection = () => {
     }
   }
 
-
   /*Delete Image*/
   const [deleteImageGrapqhl] = useMutation(DELETE_IMAGE);
-
 
   const deleteImage = async (publicId: string) => {
     try {
@@ -263,11 +295,136 @@ const removeSection = () => {
       console.error('Failed to delete image:', error);
     }
   };
-  
 
+  const handleOpen = () => {
+    setSizeModalToggle(true)
+    setOpen(true);
+  };
+  const handleColorOpen = () => {
+    setColorModalToggle(true)
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setaddColorOptions([''])
+    setOpen(false); 
+  };
+
+  const ColorOptionsSubmit = () => {
+    console.log("")
+  }
+  /*For Colour*/
+  const increaseCount = () => {
+    setaddColorOptions([...addColorOptions, ''])
+  }
+  const deleteCurrent = (index: number) => {
+    console.log("Here is the deleted index", index)
+    setaddColorOptions(addColorOptions.filter((_, i) => i !== index));
+  }
+  const handleOptionsInputChange = (index: number, value: string) => {
+    const updatedOptions = [...addColorOptions];
+    updatedOptions[index] = value;
+    setaddColorOptions(updatedOptions);
+  };
+  /*Ended Here*/
+
+  /*For Sizes*/
+  const increaseColorCount = () => {
+    setaddColorOptions([...addColorOptions, ''])
+  }
+  const deleteColorCurrent = (index: number) => {
+    console.log("Here is the deleted index", index)
+    setaddColorOptions(addColorOptions.filter((_, i) => i !== index));
+  }
+  const handleColorOptionsInputChange = (index: number, value: string) => {
+    const updatedOptions = [...addColorOptions];
+    updatedOptions[index] = value;
+    setaddColorOptions(updatedOptions);
+  };
+  /*Ended Here*/
+ 
   return (
     <>
     <ToastContainer/>
+           <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
+      >
+        <Box sx={{ ...style, width: 400}}>
+          <div className="mb-2"><span className="text-lg font-semibold">Product Add </span> <span className="font-semibold italic">  </span></div>
+          <p id="child-modal-description">
+          </p>
+          <div>
+              
+                {/* <div className="relative flex">
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  Option 1 
+                </label>
+                <button type="button" className="border border-[#ff0000] px-2 text-sm rounded-md absolute right-0"> delete </button>
+                </div> */}
+
+                <form onSubmit={ColorOptionsSubmit} className="">
+               
+                {
+                  addColorOptions.map((option: any, index: any) => (
+                <>
+                  <div className="relative flex">
+                <label className="mt-6 mb-3 block text-sm font-medium text-black dark:text-white">
+                  Option {index + 1} 
+                </label>
+                <button type="button" className="border border-[#ff0000] px-2 text-sm rounded-md absolute right-0 bottom-3"
+                onClick={() => deleteCurrent(index)}
+                > delete {index} </button>
+                </div>
+
+                  <input
+                  value={option}
+                  type="text"
+                  placeholder=""
+                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  onChange={(e: any) => handleOptionsInputChange(index, e.target.value)}
+
+               />
+                <button type="button" className="border border-dark-800 px-2 text-sm rounded-md mt-2" onClick={()=> {
+                  
+                  increaseCount()
+                  }}> Add </button> 
+                    </>
+                  ))
+                  
+                }
+
+              
+            
+<div>
+          <button type="button" className="mt-4 focus:outline-none text-white bg-[#000000] hover:bg-[#D2122E] focus:ring-4 focus:ring-[#D2122E] font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-[#D2122E"
+          onClick={(e)=> {
+            e.preventDefault()
+          }
+          }
+          > Yes Add! </button>
+<Button 
+// type="button" 
+// className="mt-4 ml-5 focus:outline-none text-white bg-[#D2122E] hover:bg-[#D2122E] focus:ring-4 focus:ring-[#D2122E] font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-[#D2122E]"
+variant="outlined"
+onClick={(e)=> {
+            e.preventDefault()
+            handleClose()
+          }
+          }
+          > Cancel </Button>
+          </div>
+</form>
+                {/* {errors.warranty && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    {errors.warranty.message}
+                    </p>
+                  )} */}
+              </div>
+
+          </Box>
+      </Modal>
       <Breadcrumb pageName="Add a Product" />
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 mb-20 overflow-scroll h-[760px]">
         <div className="flex flex-col gap-9">
@@ -423,6 +580,12 @@ const removeSection = () => {
                      Cannot Select Images more than 4 
                     </p>
               )}
+
+
+
+
+
+<div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Stock Quantity
@@ -442,7 +605,6 @@ const removeSection = () => {
                     </p>
                   )}
               </div>
-               
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Product Price
@@ -462,7 +624,6 @@ const removeSection = () => {
                     </p>
                   )}
               </div>
-
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Weight
@@ -482,7 +643,9 @@ const removeSection = () => {
                     </p>
                   )}
               </div>
-
+</div>     
+<div className="grid grid-cols-2 gap-4">
+        
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Dimensions
@@ -502,14 +665,13 @@ const removeSection = () => {
                     </p>
                   )}
               </div>
-
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Material
                 </label>
                 <input
                   type="text"
-                  placeholder="Material"
+                  placeholder="Material"  
                   className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   {...register('material')} // Register the 'first_name' field here
                   onChange={(e) => {
@@ -522,7 +684,6 @@ const removeSection = () => {
                     </p>
                   )}
               </div>
-
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Model Number
@@ -542,7 +703,6 @@ const removeSection = () => {
                     </p>
                   )}
               </div>
-
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Warranty Details
@@ -562,10 +722,85 @@ const removeSection = () => {
                     </p>
                   )}
               </div>
-              <label className="block text-sm font-medium text-black dark:text-white"> Add More Details</label>
+</div>
+
+{/* Currently working on */}
+<div className="grid grid-cols-2 grid-rows-1 gap-4">
+
+<div>
+                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  Model Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="Model Number"
+                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  {...register('model_number')} // Register the 'first_name' field here
+                  onChange={(e) => {
+                    trigger(["product_name", "product_description", "stock_quantity"]);
+                  }}
+               />
+                    {errors.model_number && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    {errors.model_number.message}
+                    </p>
+                  )}
+              </div>    
+              <div ></div>
+</div>
+
+
+<div className="grid grid-cols-2 grid-rows-1 gap-4">
+<div>
+  <div className="relative flex">
+    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+      Size
+    </label>
+    <span className="absolute right-0 cursor-pointer text-white bg-black text-xs px-3 py-1 rounded-md"
+    onClick={handleOpen}
+    >Add</span>
+
+    </div>
+    <AddMoreDetailsSize isDisabled = {isDisabled} onSelectSizeChange={ handleSizeChange }/>
+      {errors.dimensions && (
+        <p className='text-[#FF5733] text-xs  pt-2'>
+          {errors.dimensions.message}
+        </p>
+      )}
+</div>
+  <div>
+  <div className="relative flex">
+    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+      Color
+    </label>
+    <span className="absolute right-0 cursor-pointer text-white bg-black text-xs px-3 py-1 rounded-md"
+    onClick={handleColorOpen}
+    >Add</span>
+
+    </div>
+                <AddMoreDetailsColor isDisabled={isDisabled} onSelectedColorChange = { handleColorChange }/>
+                    {errors.dimensions && (
+                    <p className='text-[#FF5733] text-xs  pt-2'>
+                    {errors.dimensions.message}
+                    </p>
+                  )}
+</div>
+</div>   
+      <label className="block text-sm font-medium text-black dark:text-white"> Add More Details</label>
       {counter.length > 0 && counter.map((data, index) => (
-        <div key={index} className="grid grid-cols-2 gap-4 h-14">
-          <div className="flex flex-col">
+        <div className="">
+          <div className="flex justify-end gap-4">
+
+          <span className="cursor-pointer text-white bg-black text-xs px-3 py-1 rounded-md"
+          onClick={()=> removeSection(index)}
+          >Add</span>
+
+          <span className="cursor-pointer text-white bg-black text-xs px-3 py-1 rounded-md"
+          onClick={()=> removeSection(index)}
+          >Remove Row</span>
+          </div>
+        <div key={index} className="grid grid-cols-6 gap-4 h-14 py-2">
+          <div className="flex flex-col col-span-2">
             <label htmlFor={`key${index}`} className="text-gray-700"></label>
             <input
               type="text"
@@ -574,31 +809,16 @@ const removeSection = () => {
               placeholder="Title"
               value={data.key}
               onChange={(e) => handleInputChange(index, e)}
-              className="border border-slate-400 rounded-md py-2 px-3 mt-1"
+              className="border border-slate-400 rounded-md py-2 px-3"
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col col-span-4 col-start-3 ">
             <label htmlFor={`value${index}`} className="text-gray-700"></label>
-            <input
-              type="text"
-              id={`value${index}`}
-              name="value"
-              placeholder="Description"
-              value={data.value}
-              onChange={(e) => handleInputChange(index, e)}
-              className="border border-slate-400 rounded-md py-2 px-3 mt-1"
-            />
+            <AddMoreDetailsProduct isDisabled={isDisabled} onSelectProductChange={handleProductChange} />
           </div>
         </div>
+        </div>
       ))}
-      {counter.length>0 &&       
-      <div
-        className="flex justify-center items-center border border-slate-400 h-6 cursor-pointer"
-        onClick={removeSection}
-      >
-        <FaMinus/>
-      </div>
-      }
 
       <div
         className="flex justify-center items-center border border-slate-400 h-10 cursor-pointer"

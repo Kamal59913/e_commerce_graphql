@@ -54,7 +54,6 @@ const CategoryTable = () => {
     fetchPolicy: "network-only", 
   });
 
-
   const [deleteCategory] = useMutation(DELETE_CATEGORY)
   const router = useRouter();
 
