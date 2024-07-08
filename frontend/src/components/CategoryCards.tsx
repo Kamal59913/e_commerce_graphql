@@ -21,9 +21,8 @@ const CategoryCards: React.FC<CategoryCardsProps> = ({
   return (
     <div className="relative dark:text-white">
     <div className="rounded-sm h-[160px] border border-stroke bg-[#ADD8E6] px-7 py-6 shadow-default dark:border-strokedark dark:bg-[#2C3E50] flex items-center justify-center"
-    style={cardStyle}
-    >
-      </div>
+    style={cardStyle}>
+    </div>
 
       <span className="text-md font-medium text-center flex justify-center">{title}</span>
     </div>

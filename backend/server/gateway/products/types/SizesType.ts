@@ -1,11 +1,12 @@
-import { CurrencyType } from "@/db/models/products_type/products_type";
+import { CurrencyType, moreInformationObjectType } from "@/db/models/products_type/products_type";
 import { GraphQLBoolean, GraphQLInputObjectType, GraphQLNonNull, GraphQLString, GraphQLFloat, GraphQLID, GraphQLList, GraphQLObjectType } from "graphql";
-import { ProductImageType } from "@/db/models/products_type/image_type";
-import { moreInformationType } from "@/db/models/products_type/products_type";
+import { ProductImageObjectType, ProductImageType } from "@/db/models/products_type/image_type";
+import { CategoryType } from "@/gateway/categories/types/CategoryType";
 
-export const ProductsInputType = new GraphQLInputObjectType({
-    name: 'ProductsInputType',
+export const ProductsType = new GraphQLObjectType({
+    name: 'ProductsType',
     fields: () => ({
+      _id:  { type: new GraphQLNonNull(GraphQLString) },
       product_name: { type: new GraphQLNonNull(GraphQLString) },
       product_description: { type: new GraphQLNonNull(GraphQLString) },
       stock_quantity: { type: new GraphQLNonNull(GraphQLFloat) },
@@ -21,18 +22,20 @@ export const ProductsInputType = new GraphQLInputObjectType({
       is_new: { type: GraphQLBoolean },
       shipping_weight: { type: GraphQLString },
       shipping_dimensions: { type: GraphQLString },
-      product_category: { type: GraphQLString}, // Ensure this is Non-Null if it's required
+      product_category: { type: 
+        CategoryType
+      }, // Ensure this is Non-Null if it's required
       product_images: {
-        type: ProductImageType
+        type: ProductImageObjectType
       },
       more_details : {
-        type: moreInformationType
+        type: moreInformationObjectType
       },
-      sizes: {
-        type: new GraphQLList(GraphQLString)
-      },
-      colors: {
-        type: new GraphQLList(GraphQLString)
+      createdAt: {
+        type: 
+          GraphQLString
+        
       }
+
     })
   });

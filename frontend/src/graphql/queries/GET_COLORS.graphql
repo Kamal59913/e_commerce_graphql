@@ -1,0 +1,12 @@
+query GetColors {
+  getColors {
+    success
+    colors {
+      color_name
+    }
+    errors {
+      message
+      code
+    }
+  }
+}

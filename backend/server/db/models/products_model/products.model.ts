@@ -21,6 +21,8 @@ export type Product = {
   product_category: Schema.Types.ObjectId,
   product_images: { displayName: string; url: string; publicId: string }[];
   more_details: { key: string, value: string[] }[];
+  sizes: string[],
+  colors: string[]
 }
 
 const ProductsSchema = new Schema<Product>({
@@ -115,8 +117,17 @@ const ProductsSchema = new Schema<Product>({
     required: false,
     default: []
   },
-  
-},
+  sizes: {
+    type: [String],
+    required: false,
+    default:[]
+  },
+  colors: {
+    type: [String],
+    required: false,
+    default:[]
+  }
+  },
   {
     timestamps: true,
   });

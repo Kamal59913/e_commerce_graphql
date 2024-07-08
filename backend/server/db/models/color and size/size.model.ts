@@ -12,6 +12,6 @@ const sizeSchema = new Schema<Size> ({
 })
 
 
-const SizeModel = model('Color', sizeSchema);
+const SizeModel = model('Size', sizeSchema);
 
 export default SizeModel;

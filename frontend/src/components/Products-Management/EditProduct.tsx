@@ -22,7 +22,6 @@ import Select from 'react-select';
 import AddMoreDetailsProduct from "../SelectGroup/addMoreDetails/addMoreDetailsProduct";
 import AddMoreDetailsSize from "../SelectGroup/addMoreDetails/addMoreDetailsSize";
 import AddMoreDetailsColor from "../SelectGroup/addMoreDetails/addMoreDetailsColor";
-import { useRouter } from "next/navigation";
 
 /*Importing add color and add sizes*/
 import ADD_COLOR from "../../graphql/mutations/ADD_COLORS.graphql"
@@ -65,11 +64,8 @@ interface SizesValues {
   values: string
 }
 
-const AddProduct: React.FC = () => {
+const EditProduct: React.FC = () => {
 
-  const router = useRouter();
-
-  const image_cloudinary_cloud_name = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
   const [enabledIsAvailable, setenabledIsAvailable] = useState(false);
   const [enabledIsActive, setenabledIsActive] = useState(false);
@@ -163,18 +159,15 @@ const removeSection = (index: any) => {
   setCounter((prevCounter) => prevCounter.filter((_, i) => i !== index));
 }
 
-const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
-  const { name, value } = event.target;
-  setCounter(prevCounter => {
-    const newCounter = [...prevCounter];
-    newCounter[index] = {
-      ...newCounter[index],
+  const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const list = [...counter];
+    list[index] = {
+      ...list[index],
       [name]: value,
     };
-    return newCounter;
-  });
-};
-
+    setCounter(list);
+  };
   
   const {
     control,
@@ -261,8 +254,6 @@ const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElem
           position: "top-center",
           toastId: "randomid"
         })
-
-        router.push("/product-management/products")
       }
 
       const errors = submitResponse.data.addProduct.errors;
@@ -458,7 +449,7 @@ const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElem
                 </label>
                 <button type="button" className="border border-[#ff0000] px-2 text-sm rounded-md absolute right-0 bottom-3"
                 onClick={() => deleteCurrent(index)}
-                > delete </button>
+                > delete {index} </button>
                 </div>
 
                   <input
@@ -527,7 +518,7 @@ onClick={(e)=> {
                 </label>
                 <button type="button" className="border border-[#ff0000] px-2 text-sm rounded-md absolute right-0 bottom-3"
                 onClick={() => deleteColorCurrent(index)}
-                > delete </button>
+                > delete {index} </button>
                 </div>
 
                   <input
@@ -600,7 +591,7 @@ onClick={(e)=> {
                 <div className="border border-slate-200 pl-2"
 
                 >
-                  <Controller
+           <Controller
                     name="product_description"
                     control={control}
                     defaultValue=""
@@ -934,48 +925,37 @@ onClick={(e)=> {
 </div>   
       <label className="block text-sm font-medium text-black dark:text-white"> Add More Details</label>
       {counter.length > 0 && counter.map((data, index) => (
-  <div key={index}>
-    <div className="flex justify-end gap-4">
-      <span
-        className="cursor-pointer text-white bg-black text-xs px-3 py-1 rounded-md"
-        onClick={() => removeSection(index)}
-      >
-        Remove Row
-      </span>
-    </div>
-    <div className="grid grid-cols-6 gap-4 h-14 py-2">
-      <div className="flex flex-col col-span-2">
-        <label htmlFor={`key${index}`} className="text-gray-700">
-          Key
-        </label>
-        <input
-          type="text"
-          id={`key${index}`}
-          name="key"
-          placeholder="Enter key"
-          value={data.key}
-          onChange={(e) => handleInputChange(index, e)}
-          className="border border-slate-400 rounded-md py-2 px-3"
-        />
-      </div>
-      <div className="flex flex-col col-span-4 col-start-3">
-        <label htmlFor={`value${index}`} className="text-gray-700">
-          Value
-        </label>
-        <input
-          type="text"
-          id={`value${index}`}
-          name="value"
-          placeholder="Enter value"
-          value={data.value}
-          onChange={(e) => handleInputChange(index, e)}
-          className="border border-slate-400 rounded-md py-2 px-3"
-        />
-      </div>
-    </div>
-  </div>
-))}
+        <div className="">
+          <div className="flex justify-end gap-4">
 
+          <span className="cursor-pointer text-white bg-black text-xs px-3 py-1 rounded-md"
+          onClick={()=> removeSection(index)}
+          >Add</span>
+
+          <span className="cursor-pointer text-white bg-black text-xs px-3 py-1 rounded-md"
+          onClick={()=> removeSection(index)}
+          >Remove Row</span>
+          </div>
+        <div key={index} className="grid grid-cols-6 gap-4 h-14 py-2">
+          <div className="flex flex-col col-span-2">
+            <label htmlFor={`key${index}`} className="text-gray-700"></label>
+            <input
+              type="text"
+              id={`key${index}`}
+              name="key"
+              placeholder="Title"
+              value={data.key}
+              onChange={(e) => handleInputChange(index, e)}
+              className="border border-slate-400 rounded-md py-2 px-3"
+            />
+          </div>
+          <div className="flex flex-col col-span-4 col-start-3 ">
+            <label htmlFor={`value${index}`} className="text-gray-700"></label>
+            <AddMoreDetailsProduct isDisabled={isDisabled} onSelectProductChange={handleProductChange} />
+          </div>
+        </div>
+        </div>
+      ))}
 
       <div
         className="flex justify-center items-center border border-slate-400 h-10 cursor-pointer"
@@ -1065,4 +1045,4 @@ onClick={(e)=> {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

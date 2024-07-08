@@ -1,0 +1,12 @@
+query GetSizes {
+  getSizes {
+    success
+    sizes {
+      size_name
+    }
+    errors {
+      message
+      code
+    }
+  }
+}

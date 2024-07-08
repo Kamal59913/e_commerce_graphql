@@ -1,0 +1,9 @@
+mutation AddProductSize($input: getSizeInput) {
+  addProductSize(input: $input) {
+    success
+    errors {
+      message
+      code
+    }
+  }
+}

@@ -21,16 +21,6 @@ export const moreInformationObjectType =  new GraphQLList(new GraphQLObjectType(
   name: 'moreInformationObjectType',
   fields:  {
     key: { type: GraphQLString },
-    value: { type: GraphQLString },
+    value: { type: new GraphQLList(GraphQLString) },
   },
 }))
-
-
-// export const CurrencyTypes = new GraphQLEnumType({
-//     name: 'Currency',
-//     values: {
-//       INR: { value: 'INR'},
-//       EUR: { value: 'EUR'},
-//       USD: { value: 'USD'}
-//     }
-//   })

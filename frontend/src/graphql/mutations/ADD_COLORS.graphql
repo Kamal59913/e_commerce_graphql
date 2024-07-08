@@ -1,0 +1,9 @@
+mutation AddProductColor($input: getColorInput) {
+  addProductColor(input: $input) {
+    success
+    errors {
+      message
+      code
+    }
+  }
+}

@@ -21,6 +21,8 @@ const addProduct = async (parent, args, context) => {
     product_category,
     product_images,
     more_details,
+    sizes,
+    colors
   } = args.input
 
   const getParent= await CategoryModel.findOne({category_name: product_category})
@@ -46,6 +48,8 @@ const addProduct = async (parent, args, context) => {
         product_category: getParent?._id || null,
         product_images,
         more_details,
+        sizes,
+        colors
       }
     );
 
@@ -55,7 +59,7 @@ const addProduct = async (parent, args, context) => {
       throw new Error('Unable to create category');
     }
 
-    return{
+    return {
       success: true,
       errors: null
     }

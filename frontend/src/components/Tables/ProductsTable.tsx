@@ -148,13 +148,10 @@ useEffect(()=> {
   };
 
   const editPageRedirect = (slug: string) => {
-    
     const encodedSlug = slugify(slug, { lower: true, strict: true });
-
-    router.push(`/product-management/categories/edit/${encodedSlug}`)
+    router.push(`/product-management/products/edit/${encodedSlug}`)
   }
-
-
+  
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
   if (!data) return <p>Loading...</p>

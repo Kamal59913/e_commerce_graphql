@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { RiShoppingBag2Fill } from "react-icons/ri";
-// import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_TRUE_PARENT.graphql'
+import GET_COLORS from '../../../graphql/queries/GET_COLORS.graphql'
 import { useMutation, useQuery } from "@apollo/client";
 import Select from 'react-select';
 // import GET_CATEGORY_EXCLUDING_CURRENT from '../../graphql/mutations/GET_CATEGORY_EXCLUDING_CURRENT.graphql'
@@ -21,45 +21,24 @@ const AddMoreDetailsColor: React.FC<addCategoryProps> = ({isDisabled, onSelected
   const [isRtl, setIsRtl] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(false);
 
-  // const { data, loading, error } = useQuery(GET_CATEGORIES);
-  const [categoryOptions, setCategoryOptions] = useState([]);
+  const { data, loading, error } = useQuery(GET_COLORS);
+  const [colorOptions, setColorOptions] = useState([]);
 
-  // useEffect(() => {
-  //   if (data && data.getCategoryWithParentTrue.category) {
-  //     const transformedData = data.getCategoryWithParentTrue.category.map((category: any) => ({
-  //       value: category.category_name,
-  //       label: category.category_name,
-  //     }));
-  //     setCategoryOptions(transformedData);
-  //   }
-  // }, [data]);
+  useEffect(() => {
+    if (data && data.getColors.colors) {
+      const transformedData = data.getColors.colors.map((colors: any) => ({
+        value: colors.color_name,
+        label: colors.color_name,
+      }));
+      setColorOptions(transformedData);
+    }
+  }, [data]);
 
-  const handleSizeChange = (selectedOption: any) => {
-    const categoryValue = selectedOption.value;
-    onSelectedColorChange(categoryValue); // Call the callback function with the selected value
+  const handleSizeChange = (selectedOptions: any) => {
+    const selectedValues = selectedOptions.map((option: any) => option.value);
+    onSelectedColorChange(selectedValues); // Call the callback function with the selected value
   };
 
-  const colourOptions: any = [
-    { value: 'red', label: 'Red' },
-    { value: 'green', label: 'Green' },
-    { value: 'blue', label: 'Blue' },
-    { value: 'yellow', label: 'Yellow' },
-    { value: 'red', label: 'Red' },
-    { value: 'green', label: 'Green' },
-    { value: 'blue', label: 'Blue' },
-    { value: 'yellow', label: 'Yellow' },
-    { value: 'red', label: 'Red' },
-    { value: 'green', label: 'Green' },
-    { value: 'blue', label: 'Blue' },
-    { value: 'yellow', label: 'Yellow' }
-  ];
-  
-
-  useEffect(()=> {
-    console.log("Here is the category data", categoryOptions)
-  },[categoryOptions])
-
-  const [selectedOption, setSelectedOption] = useState<string>("");
   const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
 
   const changeTextColor = () => {
@@ -80,16 +59,16 @@ const AddMoreDetailsColor: React.FC<addCategoryProps> = ({isDisabled, onSelected
           isMulti
           isSearchable={isSearchable}
           name="color"
-          options={colourOptions}
+          options={colorOptions}
           onChange={handleSizeChange}
           noOptionsMessage={() => "No Options"}
           styles={{
             control: (provided) => ({
               ...provided,
-              minHeight: '40px',
-              height: '42px',
+              minHeight: '42px',
               border: '1px solid #9CA3AF',
               boxShadow: 'none',
+              overflowY: 'auto',
             }),
             menu: (provided) => ({
               ...provided,

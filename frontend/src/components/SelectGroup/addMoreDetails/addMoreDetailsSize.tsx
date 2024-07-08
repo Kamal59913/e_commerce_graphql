@@ -1,18 +1,18 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { RiShoppingBag2Fill } from "react-icons/ri";
-// import GET_CATEGORIES from '../../graphql/queries/GET_CATEGORY_TRUE_PARENT.graphql'
+import GET_SIZES from '../../../graphql/queries/GET_SIZES.graphql'
 import { useMutation, useQuery } from "@apollo/client";
 import Select from 'react-select';
-// import GET_CATEGORY_EXCLUDING_CURRENT from '../../graphql/mutations/GET_CATEGORY_EXCLUDING_CURRENT.graphql'
 
 interface addCategoryProps {
   isDisabled: boolean,
   onSelectSizeChange: (selectedProduct: string) => void;
+  onAddingNew: string[]
 }
 
 
-const AddMoreDetailsSize: React.FC<addCategoryProps> = ({isDisabled, onSelectSizeChange}) => {
+const AddMoreDetailsSize: React.FC<addCategoryProps> = ({isDisabled, onSelectSizeChange, onAddingNew}) => {
 
   const [isClearable, setIsClearable] = useState(true);
   const [isSearchable, setIsSearchable] = useState(true);
@@ -21,43 +21,31 @@ const AddMoreDetailsSize: React.FC<addCategoryProps> = ({isDisabled, onSelectSiz
   const [isRtl, setIsRtl] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(false);
 
-  // const { data, loading, error } = useQuery(GET_CATEGORIES);
-  const [categoryOptions, setCategoryOptions] = useState([]);
+  const { data, loading, error } = useQuery(GET_SIZES);
+  const [sizeOptions, setSizeOptions] = useState([]);
 
-  // useEffect(() => {
-  //   if (data && data.getCategoryWithParentTrue.category) {
-  //     const transformedData = data.getCategoryWithParentTrue.category.map((category: any) => ({
-  //       value: category.category_name,
-  //       label: category.category_name,
-  //     }));
-  //     setCategoryOptions(transformedData);
-  //   }
-  // }, [data]);
+  useEffect(() => {
+    if (data && data.getSizes.sizes) {
+      const transformedData = data.getSizes.sizes.map((sizes: any) => ({
+        value: sizes.size_name,
+        label: sizes.size_name,
+      }));
+      setSizeOptions(transformedData);
+    }
+  }, [data]);
 
-  const handleSizeChange = (selectedOption: any) => {
-    const categoryValue = selectedOption.value;
-    onSelectSizeChange(categoryValue); // Call the callback function with the selected value
-  };
-
-  const colourOptions: any = [
-    { value: 'red', label: 'Red' },
-    { value: 'green', label: 'Green' },
-    { value: 'blue', label: 'Blue' },
-    { value: 'yellow', label: 'Yellow' },
-    { value: 'red', label: 'Red' },
-    { value: 'green', label: 'Green' },
-    { value: 'blue', label: 'Blue' },
-    { value: 'yellow', label: 'Yellow' },
-    { value: 'red', label: 'Red' },
-    { value: 'green', label: 'Green' },
-    { value: 'blue', label: 'Blue' },
-    { value: 'yellow', label: 'Yellow' }
-  ];
-  
 
   useEffect(()=> {
-    console.log("Here is the category data", categoryOptions)
-  },[categoryOptions])
+    if(onAddingNew.length > 1) {
+      console.log("Here is what that is done")
+    }
+  }, [onAddingNew])
+
+  const handleSizeChange = (selectedOptions: any) => {
+    const selectedValues = selectedOptions.map((option: any) => option.value);
+    onSelectSizeChange(selectedValues)
+  };
+
 
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
@@ -80,19 +68,17 @@ const AddMoreDetailsSize: React.FC<addCategoryProps> = ({isDisabled, onSelectSiz
           isMulti
           isSearchable={isSearchable}
           name="color"
-          options={colourOptions}
+          options={sizeOptions}
           onChange={handleSizeChange}
           noOptionsMessage={() => "No Options"}
           styles={{
             control: (provided) => ({
               ...provided,
-              minHeight: '40px',
-              height: '42px',
+              minHeight: '42px',
               border: '1px solid #9CA3AF',
               boxShadow: 'none',
-            })
-      
-            ,
+              overflowY: 'auto',
+            }),
             
             menu: (provided) => ({
               ...provided,
