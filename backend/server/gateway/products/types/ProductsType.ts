@@ -35,7 +35,13 @@ export const ProductsType = new GraphQLObjectType({
         type: 
           GraphQLString
         
+      },
+      sizes: {
+        type: new GraphQLList(GraphQLString)
+      },
+      colors: {
+        type: new GraphQLList(GraphQLString)
       }
-
+    
     })
   });

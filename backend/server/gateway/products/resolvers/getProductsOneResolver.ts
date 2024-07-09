@@ -7,6 +7,7 @@ const getProductsOneResolver = async (parent, args, context) => {
     /*check if username or email already exists in the database*/
    const product = await ProductsModel.findById(_id)
 
+   console.log("Here have reached on the resolver", product)
    if(!product) {
     return {
       errors: [
@@ -17,10 +18,10 @@ const getProductsOneResolver = async (parent, args, context) => {
       ],
     };
   }
-  
+    
     return {
         success: true,
-        category: product,
+        products: product,
         errors: null
        }  
     

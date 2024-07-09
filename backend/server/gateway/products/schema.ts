@@ -13,6 +13,7 @@ import getSizesResponseType from "./types/getSizesResponseType.type";
 import { resolve } from "path";
 import { getColorsResolver, getSizesResolver} from "./resolvers/getColorSizesResolver.resolver";
 import getProductsOneResolver from "./resolvers/getProductsOneResolver";
+import getProductOneResponse from "./types/getProductOneResponse";
 
 export const productsQuery = {
   getProducts : {
@@ -71,7 +72,7 @@ export const productMutation = {
   },
 
   getProductOne: {
-    type: ResponseType,
+    type: getProductOneResponse,
     args: {
       input: {
         type: getProductsOneInput

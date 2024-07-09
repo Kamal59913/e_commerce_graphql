@@ -8,11 +8,12 @@ import Select from 'react-select';
 interface addCategoryProps {
   isDisabled: boolean,
   onSelectSizeChange: (selectedProduct: string) => void;
-  defaultValueSize: string[]
+  defaultValue: string[]
 }
 
 
-const AddMoreDetailsSize: React.FC<addCategoryProps> = ({isDisabled, onSelectSizeChange, defaultValueSize}) => {
+const addMoreDetailsSizeForEdit: React.FC<addCategoryProps> = ({isDisabled, onSelectSizeChange, defaultValue}) => {
+  defaultValue
   const [isClearable, setIsClearable] = useState(true);
   const [isSearchable, setIsSearchable] = useState(true);
   const [isStopped, setIsStopped] = useState(false);
@@ -47,20 +48,12 @@ const AddMoreDetailsSize: React.FC<addCategoryProps> = ({isDisabled, onSelectSiz
     setIsOptionSelected(true);
   };
 
-  const transformedDefaultValue = defaultValueSize.map(size => ({
-    value: size,
-    label: size,
-  }));
-
-  console.log("Here")
-
-
   return (
     <div>
       <div className="relative bg-white dark:bg-form-input">
         <Select
           className="basic-single mb-10 absolute"
-          defaultValue={transformedDefaultValue}
+          defaultValue="Select From Categories"
           classNamePrefix="select"
           isDisabled={!isDisabled}
           isLoading={isLoading}
@@ -92,4 +85,4 @@ const AddMoreDetailsSize: React.FC<addCategoryProps> = ({isDisabled, onSelectSiz
   );
 };
 
-export default AddMoreDetailsSize;
+export default addMoreDetailsSizeForEdit;

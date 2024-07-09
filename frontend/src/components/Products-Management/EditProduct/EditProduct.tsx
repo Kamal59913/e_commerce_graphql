@@ -1,36 +1,41 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import SelectParent from "../SelectGroup/SelectParent";
-import formSchema from "./SchemaValidation/productsSchema";
+import SelectParent from "@/components/SelectGroup/SelectParent";
+import formSchema from "../SchemaValidation/productsSchema";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
-import ADD_PRODUCT from "../../graphql/mutations/ADD_PRODUCTS.graphql"
+import ADD_PRODUCT from "../../../graphql/mutations/ADD_PRODUCTS.graphql"
 import { useMutation } from "@apollo/client";
-import { FormValues } from "./types/productFormvalues";
+import { FormValues } from "../types/productFormvalues";
 import { CldUploadWidget } from 'next-cloudinary';
-import DELETE_IMAGE from '../../graphql/mutations/DELETE_CLOUDINARY.graphql'
+import DELETE_IMAGE from '../../../graphql/mutations/DELETE_CLOUDINARY.graphql'
 import { CiSquareRemove } from "react-icons/ci";
 import { FaMinus } from "react-icons/fa";
-import SelectCategoryForProducts from "../SelectGroup/SelectCategoryForProducts";
+import SelectCategoryForProducts from "@/components/SelectGroup/SelectCategoryForProducts";
 import { Editor } from 'react-draft-wysiwyg';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import Select from 'react-select';
-import AddMoreDetailsProduct from "../SelectGroup/addMoreDetails/addMoreDetailsProduct";
-import AddMoreDetailsSize from "../SelectGroup/addMoreDetails/addMoreDetailsSize";
-import AddMoreDetailsColor from "../SelectGroup/addMoreDetails/addMoreDetailsColor";
+import AddMoreDetailsProduct from "@/components/SelectGroup/addMoreDetails/addMoreDetailsProduct";
+import AddMoreDetailsSize from "@/components/SelectGroup/addMoreDetails/addMoreDetailsSize";
+import AddMoreDetailsColor from "@/components/SelectGroup/addMoreDetails/addMoreDetailsColor";
 
 /*Importing add color and add sizes*/
-import ADD_COLOR from "../../graphql/mutations/ADD_COLORS.graphql"
-import ADD_SIZES from "../../graphql/mutations/ADD_SIZES.graphql"
+import ADD_COLOR from "../../../graphql/mutations/ADD_COLORS.graphql"
+import ADD_SIZES from "../../../graphql/mutations/ADD_SIZES.graphql"
 
 /*MUI pop-up box*/
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
+
+import { GetProductOneDocument, GetProductOneMutation, GetProductOneMutationVariables, useGetProductOneMutation } from "@/graphql/generated/schema";
+import { useParams, useRouter } from "next/navigation";
+import Products from "../Products";
+
 
 const style = { 
   position: 'fixed' as 'fixed',
@@ -44,7 +49,6 @@ const style = {
   zIndex: 9999, // Add zIndex here
   border: 'none'
 };
-
 
 interface ImageData {
   url: string;
@@ -64,9 +68,20 @@ interface SizesValues {
   values: string
 }
 
+export enum Currency {
+  INR = "INR",
+  USD = "USD",
+  EUR = "EUR"
+  // Add other currencies as needed
+}
+
 const EditProduct: React.FC = () => {
+  const router = useRouter()
+  const params = useParams()
+  const slug = params['edit'].toString()
 
-
+  const decodedSlug = decodeURIComponent(slug as string).replace(/-/g, ' ');
+  const [productData, setProductData] = useState<any>(null);
   const [enabledIsAvailable, setenabledIsAvailable] = useState(false);
   const [enabledIsActive, setenabledIsActive] = useState(false);
   const [imageUrls, setImageUrls] = useState<ImageData[]>([]);
@@ -93,8 +108,8 @@ const EditProduct: React.FC = () => {
     );
   
   const [selectedProduct, setSelectedProduct] = useState<string>("");
-  const [selectedSize, setSelectedSize] = useState<string[]>([])
-  const [selectedColor, setSelectedColor] = useState<string[]>([])
+  const [selectedSize, setSelectedSize] = useState<any[]>([])
+  const [selectedColor, setSelectedColor] = useState<any[]>([])
   const [addColorOptions, setaddColorOptions] = useState([''])
   const [addSizeOptions, setaddSizeOptions] = useState([''])
   /* useState for the pop up open*/
@@ -103,6 +118,61 @@ const EditProduct: React.FC = () => {
   /*Here is the starting of the toggles*/
   const [sizeModalToggle, setSizeModalToggle] = useState(false);
   const [colorModalToggle, setColorModalToggle] = useState(false);
+
+  // const [getProductOne, {data, loading, error}] = useMutation
+  // <GetProductOneMutation,GetProductOneMutationVariables>
+  // (GetProductOneDocument)
+
+  const [getProductOne, {data, loading, error}] = useGetProductOneMutation()
+
+  useEffect(()=> {
+    const fetchProdcuctData = async () => {
+      try {
+        const response = await getProductOne({
+          variables: {
+            input: {
+              _id: decodedSlug
+            }
+          }
+        })
+
+        const products = response.data?.getProductOne?.products
+        if (products) {
+          const {product_name, product_description,
+            stock_quantity, product_price, currency, weight,
+            dimensions
+          } = products
+
+          console.log("Here is the product", products)
+          setValue('product_name', product_name)
+          setValue('product_description', product_description)
+          setValue('stock_quantity',stock_quantity)
+          setValue('product_price',product_price)
+          setValue('currency', currency as unknown as Currency)
+          setValue('weight', weight as number)
+          setValue('dimensions', dimensions as string)
+
+          setSelectedColor(products.colors ? products.colors : []);
+          setSelectedSize(products.sizes ? products.sizes : []);
+          
+          if(products) {
+
+          }
+          const description = await JSON.parse(product_description)
+          const contentState = convertFromRaw(description);
+          const processedDescription = EditorState.createWithContent(contentState);
+          setEditorState(processedDescription);        
+        }   
+      } catch (error) {
+        
+      }
+    }
+    fetchProdcuctData()
+  },[])
+
+
+
+
 
   const handleCategoryChange = (selectedCategory: string) => {
     setSelectedCategory(selectedCategory); // Update the state with the selected category
@@ -179,13 +249,6 @@ const removeSection = (index: any) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      product_name: "",
-      product_description: "",
-      stock_quantity: 0,
-      product_price: 0,
-      currency: 'INR',
-      weight: 0,
-      dimensions: ''
     },
     mode: "onChange",
     reValidateMode: "onChange",
@@ -200,7 +263,7 @@ const removeSection = (index: any) => {
     setValue("isActive", enabledIsActive);
   }, [enabledIsActive, imageUrls, setValue]);
 
-  const [createCategory, { data, loading, error }] = useMutation(ADD_PRODUCT);
+  const [createCategory] = useMutation(ADD_PRODUCT);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     const data = convertToRaw(editorState.getCurrentContent());
@@ -562,7 +625,7 @@ onClick={(e)=> {
           </Box>
       </Modal>
 
-      <Breadcrumb pageName="Add a Product" />
+      <Breadcrumb pageName="Edit Product" />
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-1 mb-20 overflow-scroll h-[760px]">
         <div className="flex flex-col gap-9">
           {/* <!-- Input Fields --> */}
@@ -898,7 +961,11 @@ onClick={(e)=> {
     >Add</span>
 
     </div>
-    <AddMoreDetailsSize isDisabled = {isDisabled} onSelectSizeChange={ handleSizeChange } onAddingNew = {addColorOptions}/>
+    <AddMoreDetailsSize 
+    isDisabled = {isDisabled} 
+    onSelectSizeChange={ handleSizeChange } 
+    defaultValueSize = {selectedSize}
+    />
       {errors.dimensions && (
         <p className='text-[#FF5733] text-xs  pt-2'>
           {errors.dimensions.message}

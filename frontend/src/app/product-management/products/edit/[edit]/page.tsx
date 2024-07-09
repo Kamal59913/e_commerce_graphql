@@ -1,5 +1,5 @@
 import React from 'react'
-import EditProduct from '@/components/Products-Management/EditProduct'
+import EditProduct from '@/components/Products-Management/EditProduct/EditProduct'
 import DefaultLayout from '@/components/Layouts/DefaultLayout'
 
 export default function page() {
