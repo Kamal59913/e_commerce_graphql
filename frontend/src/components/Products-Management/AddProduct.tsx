@@ -907,7 +907,7 @@ onClick={(e)=> {
     >Add</span>
 
     </div>
-    <AddMoreDetailsSize isDisabled = {isDisabled} onSelectSizeChange={ handleSizeChange } onAddingNew = {addColorOptions}/>
+    <AddMoreDetailsSize isDisabled={isDisabled} onSelectSizeChange={handleSizeChange} onAddingNew={addColorOptions} defaultValueSize={[]}/>
       {errors.dimensions && (
         <p className='text-[#FF5733] text-xs  pt-2'>
           {errors.dimensions.message}

@@ -14,8 +14,16 @@ import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from "../Loaders/Loader";
 import { truncateSync } from "fs";
+import Select from 'react-select';
+
 
 export default function LogIn() {
+  const options = [
+    { value: 'chocolate', label: 'Chocolate' },
+    { value: 'strawberry', label: 'Strawberry' },
+    { value: 'vanilla', label: 'Vanilla' }
+  ]
+  
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [email, setEmail] = useState('');
@@ -160,6 +168,7 @@ export default function LogIn() {
 
 
   return (
+
     <section className='h-screen'>
       <ToastContainer/>
     <div className="grid grid-cols-1 lg:grid-cols-2"> 

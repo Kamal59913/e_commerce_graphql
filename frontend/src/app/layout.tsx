@@ -4,6 +4,7 @@ import "./globals.css";
 import ApolloWrapper from "./providers";
 import Providers from "@/redux/provider";
 
+
 const inter = Inter({ subsets: ["latin"] });  
 
 export const metadata: Metadata = {
